@@ -1,0 +1,281 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("POSTGRES_URI")
+}
+
+enum UserRole {
+  REGULAR
+  ADMIN
+}
+
+enum AuthMethod {
+  CREDENTIALS
+  GOOGLE
+}
+
+enum TokenType {
+  VERIFICATION
+  TWO_FACTOR
+  PASSWORD_RESET
+}
+
+enum Status {
+  PLANNED
+  IN_PROGRESS
+  COMPLETED
+  DROPPED
+}
+
+enum MediaSource {
+  TMDB      // The Movie Database (для фільмів/серіалів)
+  GOOGLE_BOOKS // Google Books API
+  MAL       // MyAnimeList
+  CUSTOM    // Користувацький контент
+}
+
+enum ModerationType {
+  PENDING   // Очікує на модерацію
+  APPROVED  // Схвалено модератором
+  REJECTED  // Відхилено модератором
+}
+
+enum NotificationType {
+  MEDIA_REQUEST_NEW      // Новий запит на додавання медіа
+  MEDIA_REQUEST_UPDATED  // Оновлення запиту
+  MEDIA_REQUEST_APPROVED // Запит схвалено
+  MEDIA_REQUEST_REJECTED // Запит відхилено
+  SYSTEM_MESSAGE        // Системне повідомлення
+}
+
+// Базові налаштування для всіх моделей
+model User {
+  id            String        @id @default(uuid())
+  email         String        @unique
+  password      String
+  displayName   String        @map("display_name")
+  picture       String?
+
+  role          UserRole      @default(REGULAR)
+  method        AuthMethod
+
+  isVerified           Boolean @default(false) @map("is_verified")
+  isTwoFactorEnabled   Boolean @default(false) @map("is_two_factor_enabled")
+
+  accounts     Account[]
+  
+  // Медіа зв'язки
+  library          UserLibrary[]
+  reviews          Review[]
+  addedMedia       Media[]        @relation(name: "AddedMedia")     // Контент, доданий користувачем
+  mediaRequests    MediaRequest[] @relation(name: "RequestedMedia") // Запити на додавання контенту
+  moderatedRequests MediaRequest[] @relation(name: "ModeratedMedia") // Запити, які модерував користувач
+
+  // Додаємо зв'язок зі сповіщеннями
+  notifications    Notification[]
+
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @updatedAt @map("updated_at")
+
+  @@index([email])
+  @@index([role])
+  @@map("users")
+}
+
+model Account {
+  id String @id @default(uuid())
+
+  type          String
+  provider      String
+  refreshToken  String?     @map("refresh_token")
+  accessToken   String?     @map("access_token")
+  expiresAt     Int        @map("expires_at")
+
+  createdAt     DateTime   @default(now()) @map("created_at")
+  updatedAt     DateTime   @updatedAt @map("updated_at")
+
+  user          User?      @relation(fields: [userId], references: [id])
+  userId        String?    @map("user_id")
+
+  @@map("accounts")
+}
+
+model Token {
+  id        String    @id @default(uuid())
+  email     String
+  token     String    @unique
+  type      TokenType
+  expiresIn DateTime  @map("expires_in")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  @@map("tokens")
+}
+
+model Category {
+  id        String    @id @default(uuid())
+  name      String    @unique
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  
+  // Зв'язки
+  media     Media[]
+  mediaRequests MediaRequest[]
+
+  @@map("categories")
+}
+
+model Media {
+  id            String        @id @default(uuid())
+  source        MediaSource   @default(CUSTOM)
+  externalId    String?      // ID із зовнішнього API (null для користувацького контенту)
+  mediaData     Json         // Структура:
+                            // {
+                            //   title: string
+                            //   originalTitle?: string
+                            //   description: string
+                            //   year: number
+                            //   posterUrl?: string
+                            //   genres?: string[]
+                            //   rating?: number
+                            //   // Для користувацького контенту:
+                            //   addedBy?: string (user.id)
+                            //   isVerified?: boolean
+                            //   customFields?: {
+                            //     author?: string[]
+                            //     director?: string[]
+                            //     publisher?: string
+                            //     isbn?: string
+                            //     // інші специфічні поля
+                            //   }
+                            // }
+  createdAt     DateTime     @default(now()) @map("created_at")
+  updatedAt     DateTime     @updatedAt @map("updated_at")
+  
+  // Додаємо поля для перевірки дублікатів
+  searchableTitle String      @map("searchable_title") // Нормалізована назва
+  externalIds    Json?       // Масив ID з різних джерел
+
+  // Зв'язки
+  category      Category     @relation(fields: [categoryId], references: [id])
+  categoryId    String       @map("category_id")
+  library       UserLibrary[]
+  reviews       Review[]
+  
+  // Зв'язок з користувачем, який додав контент
+  addedBy       User?        @relation(name: "AddedMedia", fields: [addedById], references: [id])
+  addedById     String?      @map("added_by_id")
+
+  // Зв'язок з запитом на додавання
+  mediaRequest  MediaRequest[]
+
+  @@index([searchableTitle]) // Індекс для швидкого пошуку
+  @@map("media")
+}
+
+model UserLibrary {
+  id        String    @id @default(uuid())
+  status    Status    @default(PLANNED)
+  rating    Float?    // Nullable, рейтинг від 1 до 10
+  notes     String?   @db.VarChar(500)
+  addedAt   DateTime  @default(now()) @map("added_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  
+  // Зв'язки
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String    @map("user_id")
+  media     Media     @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+  mediaId   String    @map("media_id")
+
+  @@unique([userId, mediaId])
+  @@index([userId, status])
+  @@index([mediaId])
+  @@map("user_library")
+}
+
+model Review {
+  id        String    @id @default(uuid())
+  text      String
+  rating    Float     // Обов'язковий рейтинг від 1 до 10
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  
+  // Зв'язки
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String    @map("user_id")
+  media     Media     @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+  mediaId   String    @map("media_id")
+
+  @@unique([userId, mediaId]) // Один відгук на медіа від користувача
+  @@index([mediaId])
+  @@index([rating])
+  @@map("reviews")
+}
+
+// Модель для сповіщень
+model Notification {
+  id        String          @id @default(uuid())
+  type      NotificationType
+  title     String         // Заголовок сповіщення
+  message   String         // Текст сповіщення
+  isRead    Boolean        @default(false) @map("is_read")
+  createdAt DateTime       @default(now()) @map("created_at")
+  
+  // Для кого сповіщення
+  user      User           @relation(fields: [userId], references: [id])
+  userId    String        @map("user_id")
+  
+  // Зв'язок з медіа-запитом (якщо є)
+  mediaRequest MediaRequest? @relation(fields: [mediaRequestId], references: [id])
+  mediaRequestId String?    @map("media_request_id")
+
+  @@map("notifications")
+}
+
+// Модель для запитів на додавання контенту
+model MediaRequest {
+  id            String        @id @default(uuid())
+  status        ModerationType @default(PENDING)
+  mediaData     Json         // Та ж структура що і в Media
+  
+  // Поля для перевірки дублікатів
+  searchableTitle String      @map("searchable_title") // Нормалізована назва для пошуку
+  externalIds    Json?       // Масив ID з різних джерел { tmdb?: string, mal?: string, etc. }
+  
+  comment       String?      // Коментар від користувача
+  moderatorNote String?      // Нотатка від модератора (особливо важливо при відхиленні)
+  
+  // Статус перевірки на дублікати
+  duplicateCheckStatus String? @map("duplicate_check_status") // "CHECKED" | "POSSIBLE_DUPLICATE" | null
+  possibleDuplicates Json?    @map("possible_duplicates")    // Масив ID можливих дублікатів
+  
+  createdAt     DateTime     @default(now()) @map("created_at")
+  updatedAt     DateTime     @updatedAt @map("updated_at")
+  
+  // Хто подав запит
+  requestedBy   User         @relation(name: "RequestedMedia", fields: [requestedById], references: [id], onDelete: Cascade)
+  requestedById String       @map("requested_by_id")
+  
+  // Хто розглянув запит
+  moderatedBy   User?        @relation(name: "ModeratedMedia", fields: [moderatedById], references: [id])
+  moderatedById String?      @map("moderated_by_id")
+  
+  // Якщо запит схвалено - зв'язок з створеним медіа
+  approvedMedia Media?       @relation(fields: [approvedMediaId], references: [id])
+  approvedMediaId String?    @map("approved_media_id")
+  
+  // Категорія медіа
+  category      Category     @relation(fields: [categoryId], references: [id])
+  categoryId    String       @map("category_id")
+
+  // Зв'язок зі сповіщеннями
+  notifications Notification[]
+
+  @@index([searchableTitle]) // Індекс для швидкого пошуку дублікатів
+  @@index([status])
+  @@index([requestedById])
+  @@index([createdAt])
+  @@map("media_requests")
+}

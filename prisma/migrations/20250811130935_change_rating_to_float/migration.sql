@@ -1,0 +1,5 @@
+-- AlterTable
+ALTER TABLE "reviews" ALTER COLUMN "rating" SET DATA TYPE DOUBLE PRECISION;
+
+-- AlterTable
+ALTER TABLE "user_library" ALTER COLUMN "rating" SET DATA TYPE DOUBLE PRECISION;
