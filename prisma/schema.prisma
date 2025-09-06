@@ -73,6 +73,7 @@ model User {
   addedMedia       Media[]        @relation(name: "AddedMedia")     // Контент, доданий користувачем
   mediaRequests    MediaRequest[] @relation(name: "RequestedMedia") // Запити на додавання контенту
   moderatedRequests MediaRequest[] @relation(name: "ModeratedMedia") // Запити, які модерував користувач
+  userCategories   UserCategory[] // Персональні категорії користувача
 
   // Додаємо зв'язок зі сповіщеннями
   notifications    Notification[]
@@ -123,6 +124,7 @@ model Category {
   // Зв'язки
   media     Media[]
   mediaRequests MediaRequest[]
+  userCategories UserCategory[]
 
   @@map("categories")
 }
@@ -278,4 +280,22 @@ model MediaRequest {
   @@index([requestedById])
   @@index([createdAt])
   @@map("media_requests")
+}
+
+// Модель для персональних категорій користувача
+model UserCategory {
+  id        String    @id @default(uuid())
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  
+  // Зв'язки
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String    @map("user_id")
+  category  Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  categoryId String   @map("category_id")
+
+  @@unique([userId, categoryId]) // Унікальна комбінація користувача та категорії
+  @@index([userId])
+  @@index([categoryId])
+  @@map("user_categories")
 }

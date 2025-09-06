@@ -15,6 +15,7 @@ import { MediaRequestModule } from './media-request/media-request.module'
 import { MediaModule } from './media/media.module'
 import { PrismaModule } from './prisma/prisma.module'
 import { SearchModule } from './search/search.module'
+import { UserCategoriesModule } from './user-categories/user-categories.module'
 import { UserLibraryModule } from './user-library/user-library.module'
 import { UserModule } from './user/user.module'
 
@@ -35,6 +36,7 @@ import { UserModule } from './user/user.module'
 		MediaModule,
 		UserLibraryModule,
 		CategoryModule,
+		UserCategoriesModule,
 		MediaRequestModule,
 		ImageModule,
 		SearchModule,

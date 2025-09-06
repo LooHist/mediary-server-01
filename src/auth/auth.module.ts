@@ -5,6 +5,7 @@ import { GoogleRecaptchaModule } from '@nestlab/google-recaptcha'
 import { getProvidersConfig } from '@/config/providers.config'
 import { getRecaptchaConfig } from '@/config/recaptcha.config'
 import { MailService } from '@/libs/mail/mail.service'
+import { UserCategoriesModule } from '@/user-categories/user-categories.module'
 import { UserService } from '@/user/user.service'
 
 import { AuthController } from './auth.controller'
@@ -25,7 +26,8 @@ import { TwoFactorAuthService } from './two-factor-auth/two-factor-auth.service'
 			useFactory: getRecaptchaConfig,
 			inject: [ConfigService]
 		}),
-		forwardRef(() => EmailConfirmationModule)
+		forwardRef(() => EmailConfirmationModule),
+		UserCategoriesModule
 	],
 	controllers: [AuthController],
 	providers: [AuthService, UserService, MailService, TwoFactorAuthService],

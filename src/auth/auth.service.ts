@@ -11,6 +11,7 @@ import { verify } from 'argon2'
 import { Request, Response } from 'express'
 
 import { PrismaService } from '@/prisma/prisma.service'
+import { UserCategoriesService } from '@/user-categories/user-categories.service'
 import { UserService } from '@/user/user.service'
 
 import { LoginDto } from './dto/login.dto'
@@ -27,7 +28,8 @@ export class AuthService {
 		private readonly configService: ConfigService,
 		private readonly providerService: ProviderService,
 		private readonly emailConfirmationService: EmailConfirmationService,
-		private readonly twoFactorAuthService: TwoFactorAuthService
+		private readonly twoFactorAuthService: TwoFactorAuthService,
+		private readonly userCategoriesService: UserCategoriesService
 	) {}
 
 	public async register(dto: RegisterDto) {
@@ -47,6 +49,9 @@ export class AuthService {
 			AuthMethod.CREDENTIALS,
 			false
 		)
+
+		// Ініціалізуємо дефолтні категорії для нового користувача
+		await this.userCategoriesService.initializeDefaultCategories(newUser.id)
 
 		await this.emailConfirmationService.sendVerificationToken(newUser.email)
 
