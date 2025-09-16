@@ -137,6 +137,29 @@ export class UserLibraryService {
 			createdNewMedia = true
 		}
 
+		// Ensure the user has this category in personal categories
+		const resolvedCategoryId =
+			(media as any).categoryId || (media as any).category?.id
+		if (resolvedCategoryId) {
+			const userCategory = await this.prisma.userCategory.findUnique({
+				where: {
+					userId_categoryId: {
+						userId,
+						categoryId: resolvedCategoryId
+					}
+				}
+			})
+
+			if (!userCategory) {
+				await this.prisma.userCategory.create({
+					data: {
+						userId,
+						categoryId: resolvedCategoryId
+					}
+				})
+			}
+		}
+
 		// Check if media already exists in user's library
 		const existingLibraryItem = await this.prisma.userLibrary.findUnique({
 			where: {
