@@ -17,22 +17,29 @@ export class MediaService {
 		const { mediaData, categoryId, addedById, source, externalId } =
 			createMediaDto
 
-		// Перевіряємо чи існує категорія
+		// Check if category exists
 		const category = await this.prisma.category.findUnique({
 			where: { id: categoryId }
 		})
 
 		if (!category) {
-			throw new BadRequestException('Категорія не знайдена')
+			throw new BadRequestException('Category not found')
 		}
 
-		// Нормалізуємо назву для пошуку дублікатів
+		// Normalize title for duplicate search
 		const searchableTitle = this.normalizeTitle(mediaData.title)
 
-		// Перевіряємо на дублікати
-		await this.checkForDuplicates(searchableTitle, externalId)
+		// Check for duplicates with more precise logic (title + year + category or source+externalId)
+		const year = (mediaData as any)?.year as number | undefined
+		await this.checkForDuplicates({
+			searchableTitle,
+			categoryId,
+			year,
+			source,
+			externalId
+		})
 
-		// Створюємо externalIds масив
+		// Create externalIds array
 		const externalIds = externalId ? { [source]: externalId } : null
 
 		const media = await this.prisma.media.create({
@@ -80,7 +87,7 @@ export class MediaService {
 
 		const skip = (page - 1) * limit
 
-		// Будуємо умови фільтрації
+		// Build filter conditions
 		const where: Prisma.MediaWhereInput = {
 			...(categoryId && { categoryId }),
 			...(source && { source }),
@@ -109,7 +116,7 @@ export class MediaService {
 			})
 		}
 
-		// Виконуємо запити паралельно
+		// Execute queries in parallel
 		const [media, total] = await Promise.all([
 			this.prisma.media.findMany({
 				where,
@@ -183,30 +190,30 @@ export class MediaService {
 		})
 
 		if (!media) {
-			throw new NotFoundException('Медіа не знайдено')
+			throw new NotFoundException('Media not found')
 		}
 
 		return media
 	}
 
 	async update(id: string, updateMediaDto: UpdateMediaDto): Promise<Media> {
-		// Перевіряємо чи існує медіа
+		// Check if media exists
 		const existingMedia = await this.findOne(id)
 
 		const { mediaData, categoryId, ...rest } = updateMediaDto
 
-		// Якщо оновлюємо категорію, перевіряємо чи вона існує
+		// If we are updating the category, check if it exists
 		if (categoryId) {
 			const category = await this.prisma.category.findUnique({
 				where: { id: categoryId }
 			})
 
 			if (!category) {
-				throw new BadRequestException('Категорія не знайдена')
+				throw new BadRequestException('Category not found')
 			}
 		}
 
-		// Якщо оновлюємо mediaData, потрібно перерахувати searchableTitle
+		// If we are updating mediaData, we need to recalculate searchableTitle
 		let searchableTitle: string | undefined
 		if (mediaData && mediaData.title) {
 			searchableTitle = this.normalizeTitle(mediaData.title)
@@ -242,7 +249,7 @@ export class MediaService {
 	}
 
 	async remove(id: string): Promise<void> {
-		// Перевіряємо чи існує медіа
+		// Check if media exists
 		await this.findOne(id)
 
 		await this.prisma.media.delete({
@@ -332,33 +339,54 @@ export class MediaService {
 		}
 	}
 
-	private async checkForDuplicates(
-		searchableTitle: string,
+	private async checkForDuplicates(params: {
+		searchableTitle: string
+		categoryId: string
+		year?: number
+		source?: any
 		externalId?: string
-	): Promise<void> {
-		const duplicates = await this.findDuplicates(
-			searchableTitle,
-			externalId
-		)
+	}): Promise<void> {
+		const { searchableTitle, categoryId, year, source, externalId } = params
+
+		// If there is an external ID, check by source + externalId
+		if (externalId && source) {
+			const existsByExternal = await this.prisma.media.findFirst({
+				where: { source: source as any, externalId },
+				select: { id: true }
+			})
+			if (existsByExternal) {
+				throw new BadRequestException(
+					'Media with this externalId already exists'
+				)
+			}
+		}
+
+		// Check by exact title + category + year (if there is a year)
+		const where: Prisma.MediaWhereInput = {
+			searchableTitle: { equals: searchableTitle, mode: 'insensitive' },
+			categoryId,
+			...(year !== undefined
+				? { mediaData: { path: ['year'], equals: year } }
+				: {})
+		}
+
+		const duplicates = await this.prisma.media.findMany({
+			where,
+			select: { id: true }
+		})
 
 		if (duplicates.length > 0) {
-			throw new BadRequestException({
-				message: 'Знайдено можливі дублікати',
-				duplicates: duplicates.map(media => ({
-					id: media.id,
-					title: (media.mediaData as any).title,
-					year: (media.mediaData as any).year,
-					categoryId: media.categoryId
-				}))
-			})
+			throw new BadRequestException(
+				'Media with this title already exists in this category for this year'
+			)
 		}
 	}
 
 	private normalizeTitle(title: string): string {
 		return title
 			.toLowerCase()
-			.replace(/[^\p{L}\p{N}\s]/gu, '') // Видаляємо спецсимволи, залишаємо букви, цифри та пробіли
-			.replace(/\s+/g, ' ') // Замінюємо множинні пробіли одним
+			.replace(/[^\p{L}\p{N}\s]/gu, '') // Remove special characters, keep letters, numbers and spaces
+			.replace(/\s+/g, ' ') // Replace multiple spaces with single spaces
 			.trim()
 	}
 }

@@ -46,21 +46,62 @@ export class UserLibraryService {
 				searchResult.type as keyof typeof this.categoryMap
 			] || 'Movies'
 
-		// Check if media already exists in database
+		// Check if media already exists in database (two-step)
+		const normalizedTitle = this.normalizeTitle(searchResult.title)
+		const year = searchResult.year ? parseInt(searchResult.year) : undefined
+
+		// 1) Try by source + externalId
 		let media = await this.prisma.media.findFirst({
 			where: {
-				OR: [
-					{
-						externalId: searchResult.externalId,
-						source: this.mapSourceToMediaSource(searchResult.source)
-					},
-					{
-						searchableTitle: this.normalizeTitle(searchResult.title)
-					}
-				]
+				externalId: searchResult.externalId,
+				source: this.mapSourceToMediaSource(searchResult.source)
 			},
 			include: { category: true }
 		})
+
+		// 2) Fallback to exact title + category + year + externalId (AND)
+		if (!media) {
+			media = await this.prisma.media.findFirst({
+				where: {
+					AND: [
+						{
+							searchableTitle: {
+								equals: normalizedTitle,
+								mode: 'insensitive'
+							}
+						},
+						{ category: { name: categoryName } },
+						{ externalId: searchResult.externalId },
+						{
+							source: this.mapSourceToMediaSource(
+								searchResult.source
+							)
+						},
+						...(year !== undefined
+							? [
+									{
+										OR: [
+											{
+												mediaData: {
+													path: ['year'],
+													equals: year
+												}
+											},
+											{
+												mediaData: {
+													path: ['year'],
+													equals: String(year)
+												}
+											}
+										]
+									}
+								]
+							: [])
+					]
+				},
+				include: { category: true }
+			})
+		}
 
 		// If media doesn't exist, create it
 		if (!media) {
@@ -74,8 +115,6 @@ export class UserLibraryService {
 				rating: searchResult.rating,
 				genres: searchResult.genres || []
 			}
-
-			console.log('Creating media with data:', mediaData)
 
 			media = await this.prisma.media.create({
 				data: {
@@ -529,6 +568,10 @@ export class UserLibraryService {
 	}
 
 	private normalizeTitle(title: string): string {
-		return title.toLowerCase().trim()
+		return title
+			.toLowerCase()
+			.replace(/[^\p{L}\p{N}\s]/gu, '')
+			.replace(/\s+/g, ' ')
+			.trim()
 	}
 }
