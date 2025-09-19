@@ -64,7 +64,8 @@ export class MediaService {
 				_count: {
 					select: {
 						library: true,
-						reviews: true
+						reviews: true,
+						favorites: true
 					}
 				}
 			}
@@ -183,7 +184,8 @@ export class MediaService {
 				_count: {
 					select: {
 						library: true,
-						reviews: true
+						reviews: true,
+						favorites: true
 					}
 				}
 			}
@@ -239,7 +241,8 @@ export class MediaService {
 				_count: {
 					select: {
 						library: true,
-						reviews: true
+						reviews: true,
+						favorites: true
 					}
 				}
 			}

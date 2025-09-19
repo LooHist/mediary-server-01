@@ -11,16 +11,21 @@ import {
 } from '@nestjs/common'
 import { UserRole } from '@prisma/client'
 
+import { Authorized } from '../auth/decorators/authorized.decorator'
 import { Roles } from '../auth/decorators/roles.decorator'
 import { AuthGuard } from '../auth/guards/auth.guard'
 import { RolesGuard } from '../auth/guards/roles.guard'
+import { FavoritesService } from '../favorites/favorites.service'
 
 import { CreateMediaDto, FindMediaDto, UpdateMediaDto } from './dto'
 import { MediaService } from './media.service'
 
 @Controller('media')
 export class MediaController {
-	constructor(private readonly mediaService: MediaService) {}
+	constructor(
+		private readonly mediaService: MediaService,
+		private readonly favoritesService: FavoritesService
+	) {}
 
 	@Post()
 	@UseGuards(AuthGuard)
@@ -58,6 +63,29 @@ export class MediaController {
 	@Get(':id/stats')
 	getStats(@Param('id') id: string) {
 		return this.mediaService.getMediaStats(id)
+	}
+
+	@Get(':id/favorites/count')
+	getFavoritesCount(@Param('id') id: string) {
+		return this.favoritesService.getMediaFavoritesCount(id)
+	}
+
+	@Get(':id/favorites/check')
+	@UseGuards(AuthGuard)
+	checkIfInFavorites(
+		@Param('id') id: string,
+		@Authorized('id') userId: string
+	) {
+		return this.favoritesService.isMediaInFavorites(userId, id)
+	}
+
+	@Post(':id/favorites/toggle')
+	@UseGuards(AuthGuard)
+	toggleFavorite(
+		@Param('id') mediaId: string,
+		@Authorized('id') userId: string
+	) {
+		return this.favoritesService.toggleFavorite(userId, mediaId)
 	}
 
 	@Patch(':id')

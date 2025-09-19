@@ -70,6 +70,7 @@ model User {
   // Медіа зв'язки
   library          UserLibrary[]
   reviews          Review[]
+  favorites        UserFavorite[] // Лайки (favorites)
   addedMedia       Media[]        @relation(name: "AddedMedia")     // Контент, доданий користувачем
   mediaRequests    MediaRequest[] @relation(name: "RequestedMedia") // Запити на додавання контенту
   moderatedRequests MediaRequest[] @relation(name: "ModeratedMedia") // Запити, які модерував користувач
@@ -165,6 +166,7 @@ model Media {
   categoryId    String       @map("category_id")
   library       UserLibrary[]
   reviews       Review[]
+  favorites     UserFavorite[] // Лайки (favorites)
   
   // Зв'язок з користувачем, який додав контент
   addedBy       User?        @relation(name: "AddedMedia", fields: [addedById], references: [id])
@@ -298,4 +300,21 @@ model UserCategory {
   @@index([userId])
   @@index([categoryId])
   @@map("user_categories")
+}
+
+// Модель для лайків (favorites)
+model UserFavorite {
+  id        String    @id @default(uuid())
+  createdAt DateTime  @default(now()) @map("created_at")
+  
+  // Зв'язки
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String    @map("user_id")
+  media     Media     @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+  mediaId   String    @map("media_id")
+
+  @@unique([userId, mediaId]) // Унікальна комбінація користувача та медіа
+  @@index([userId])
+  @@index([mediaId])
+  @@map("user_favorites")
 }

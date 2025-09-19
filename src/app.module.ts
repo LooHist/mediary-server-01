@@ -8,6 +8,7 @@ import { ProviderModule } from './auth/provider/provider.module'
 import { TwoFactorAuthModule } from './auth/two-factor-auth/two-factor-auth.module'
 import { CategoryModule } from './category/category.module'
 import { ExternalModule } from './external/external.module'
+import { FavoritesModule } from './favorites/favorites.module'
 import { ImageModule } from './image/image.module'
 import { IS_DEV_ENV } from './libs/common/utils/is-dev.util'
 import { MailModule } from './libs/mail/mail.module'
@@ -38,6 +39,7 @@ import { UserModule } from './user/user.module'
 		CategoryModule,
 		UserCategoriesModule,
 		MediaRequestModule,
+		FavoritesModule,
 		ImageModule,
 		SearchModule,
 		ExternalModule
