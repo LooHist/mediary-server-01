@@ -12,7 +12,6 @@ import {
 import { Authorized } from '../auth/decorators/authorized.decorator'
 import { AuthGuard } from '../auth/guards/auth.guard'
 
-import { FindFavoritesDto } from './dto'
 import { FavoritesService } from './favorites.service'
 
 @Controller('favorites')
@@ -20,24 +19,15 @@ import { FavoritesService } from './favorites.service'
 export class FavoritesController {
 	constructor(private readonly favoritesService: FavoritesService) {}
 
-	@Get()
-	async getUserFavorites(
+	@Post('check-batch')
+	async checkMultipleFavorites(
 		@Authorized('id') userId: string,
-		@Query() findFavoritesDto: FindFavoritesDto
+		@Body() body: { mediaIds: string[] }
 	) {
-		return this.favoritesService.getUserFavorites(userId, findFavoritesDto)
-	}
-
-	@Get('check/:mediaId')
-	async isMediaInFavorites(
-		@Authorized('id') userId: string,
-		@Param('mediaId') mediaId: string
-	) {
-		const isInFavorites = await this.favoritesService.isMediaInFavorites(
+		return this.favoritesService.checkMultipleFavorites(
 			userId,
-			mediaId
+			body.mediaIds
 		)
-		return { isInFavorites }
 	}
 
 	@Post('toggle/:mediaId')
@@ -46,11 +36,5 @@ export class FavoritesController {
 		@Param('mediaId') mediaId: string
 	) {
 		return this.favoritesService.toggleFavorite(userId, mediaId)
-	}
-
-	@Get('popular')
-	async getMostFavoritedMedia(@Query('limit') limit?: string) {
-		const limitNumber = limit ? parseInt(limit, 10) : 10
-		return this.favoritesService.getMostFavoritedMedia(limitNumber)
 	}
 }
