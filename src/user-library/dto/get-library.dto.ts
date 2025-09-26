@@ -67,7 +67,7 @@ export class GetLibraryDto {
 
 	@IsOptional()
 	@IsString()
-	sortBy?: string = 'addedAt' // addedAt, rating, title, year
+	sortBy?: string = 'addedAt' // addedAt, rating, title, releaseYear, favorites
 
 	@IsOptional()
 	@IsEnum(['asc', 'desc'])

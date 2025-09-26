@@ -12,6 +12,7 @@ import {
 	UserRole
 } from '@prisma/client'
 
+import { normalizeTitle } from '../libs/common/utils/normalize-title.util'
 import { PrismaService } from '../prisma/prisma.service'
 
 import {
@@ -56,7 +57,7 @@ export class MediaRequestService {
 		}
 
 		// Нормалізуємо назву для пошуку дублікатів
-		const searchableTitle = this.normalizeTitle(mediaData.title)
+		const searchableTitle = normalizeTitle(mediaData.title)
 
 		// Перевіряємо чи вже існує медіа з такими даними
 		const existingMedia = await this.checkExistingMedia(
@@ -156,7 +157,7 @@ export class MediaRequestService {
 				OR: [
 					{
 						searchableTitle: {
-							contains: this.normalizeTitle(search),
+							contains: normalizeTitle(search),
 							mode: 'insensitive'
 						}
 					},
@@ -385,7 +386,7 @@ export class MediaRequestService {
 
 		// Якщо оновлюємо mediaData, перерахуємо searchableTitle
 		if (mediaData && mediaData.title) {
-			searchableTitle = this.normalizeTitle(mediaData.title)
+			searchableTitle = normalizeTitle(mediaData.title)
 		}
 
 		const updatedRequest = await this.prisma.mediaRequest.update({
@@ -582,14 +583,5 @@ export class MediaRequestService {
 		}
 
 		return this.prisma.mediaRequest.findFirst({ where })
-	}
-
-	// Нормалізація назви для пошуку
-	private normalizeTitle(title: string): string {
-		return title
-			.toLowerCase()
-			.replace(/[^\p{L}\p{N}\s]/gu, '') // Видаляємо спецсимволи
-			.replace(/\s+/g, ' ') // Замінюємо множинні пробіли одним
-			.trim()
 	}
 }

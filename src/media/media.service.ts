@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common'
 import { Media, Prisma } from '@prisma/client'
 
+import { normalizeTitle } from '../libs/common/utils/normalize-title.util'
 import { PrismaService } from '../prisma/prisma.service'
 
 import { CreateMediaDto, FindMediaDto, UpdateMediaDto } from './dto'
@@ -27,7 +28,7 @@ export class MediaService {
 		}
 
 		// Normalize title for duplicate search
-		const searchableTitle = this.normalizeTitle(mediaData.title)
+		const searchableTitle = normalizeTitle(mediaData.title)
 
 		// Check for duplicates with more precise logic (title + year + category or source+externalId)
 		const year = (mediaData as any)?.year as number | undefined
@@ -96,7 +97,7 @@ export class MediaService {
 				OR: [
 					{
 						searchableTitle: {
-							contains: this.normalizeTitle(search),
+							contains: normalizeTitle(search),
 							mode: 'insensitive'
 						}
 					},
@@ -218,7 +219,7 @@ export class MediaService {
 		// If we are updating mediaData, we need to recalculate searchableTitle
 		let searchableTitle: string | undefined
 		if (mediaData && mediaData.title) {
-			searchableTitle = this.normalizeTitle(mediaData.title)
+			searchableTitle = normalizeTitle(mediaData.title)
 		}
 
 		const updatedMedia = await this.prisma.media.update({
@@ -283,7 +284,7 @@ export class MediaService {
 	}
 
 	async findDuplicates(title: string, externalId?: string): Promise<Media[]> {
-		const searchableTitle = this.normalizeTitle(title)
+		const searchableTitle = normalizeTitle(title)
 
 		const where: Prisma.MediaWhereInput = {
 			OR: [
@@ -383,13 +384,5 @@ export class MediaService {
 				'Media with this title already exists in this category for this year'
 			)
 		}
-	}
-
-	private normalizeTitle(title: string): string {
-		return title
-			.toLowerCase()
-			.replace(/[^\p{L}\p{N}\s]/gu, '') // Remove special characters, keep letters, numbers and spaces
-			.replace(/\s+/g, ' ') // Replace multiple spaces with single spaces
-			.trim()
 	}
 }
