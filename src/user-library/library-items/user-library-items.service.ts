@@ -216,13 +216,25 @@ export class UserLibraryItemsService {
 			throw new NotFoundException('Media not found in your library')
 		}
 
-		await this.prisma.userLibrary.delete({
-			where: {
-				userId_mediaId: {
+		// Use transaction to ensure both operations succeed or fail together
+		await this.prisma.$transaction(async tx => {
+			// Remove from library
+			await tx.userLibrary.delete({
+				where: {
+					userId_mediaId: {
+						userId,
+						mediaId
+					}
+				}
+			})
+
+			// Also remove from favorites if it exists
+			await tx.userFavorite.deleteMany({
+				where: {
 					userId,
 					mediaId
 				}
-			}
+			})
 		})
 	}
 
