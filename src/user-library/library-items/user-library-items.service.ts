@@ -75,8 +75,9 @@ export class UserLibraryItemsService {
 		// Check if media already exists
 		let media = await this.prisma.media.findFirst({
 			where: {
-				searchableTitle: normalizeTitle(searchResult.title),
-				categoryId: category.id
+				// Only check by external ID (most reliable)
+				source: MediaSource.TMDB,
+				externalId: searchResult.id?.toString()
 			}
 		})
 
