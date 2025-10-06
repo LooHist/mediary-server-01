@@ -169,6 +169,30 @@ export class UserLibraryItemsService {
 			throw new NotFoundException('Media not found in your library')
 		}
 
+		// Prepare update data
+		const updateData: any = {}
+
+		// Add status if provided
+		if (status !== undefined) {
+			updateData.status = status
+		}
+
+		// Add rating if provided
+		if (rating !== undefined) {
+			updateData.rating = rating
+		}
+
+		// Add notes if provided
+		if (notes !== undefined) {
+			updateData.notes = sanitizePlainText(notes)
+		}
+
+		// If status is being changed to non-COMPLETED, clear rating and notes
+		if (status !== undefined && status !== 'COMPLETED') {
+			updateData.rating = null
+			updateData.notes = null
+		}
+
 		// Update library item
 		const updatedItem = await this.prisma.userLibrary.update({
 			where: {
@@ -177,11 +201,7 @@ export class UserLibraryItemsService {
 					mediaId
 				}
 			},
-			data: {
-				...(status && { status }),
-				...(rating !== undefined && { rating }),
-				...(notes !== undefined && { notes: sanitizePlainText(notes) })
-			},
+			data: updateData,
 			include: {
 				media: {
 					include: {
