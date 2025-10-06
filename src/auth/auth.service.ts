@@ -139,6 +139,9 @@ export class AuthService {
 			true
 		)
 
+		// Ініціалізуємо дефолтні категорії для нового користувача
+		await this.userCategoriesService.initializeDefaultCategories(user.id)
+
 		if (!account) {
 			await this.prismaService.account.create({
 				data: {
