@@ -20,13 +20,13 @@ export class MailService {
 	}
 
 	public async sendConfirmationEmail(email: string, token: string) {
-		const domain = this.configService.getOrThrow<string>('ALLOWED_ORIGIN')
+		const domain = this.configService.getOrThrow<string>('FRONTEND_URL')
 		const html = await render(ConfirmationTemplate({ domain, token }))
 		return this.sendMail(email, 'Confirmation of mail', html)
 	}
 
 	public async sendPasswordResetEmail(email: string, token: string) {
-		const domain = this.configService.getOrThrow<string>('ALLOWED_ORIGIN')
+		const domain = this.configService.getOrThrow<string>('FRONTEND_URL')
 		const html = await render(ResetPasswordTemplate({ domain, token }))
 		return this.sendMail(email, 'Reset Password', html)
 	}

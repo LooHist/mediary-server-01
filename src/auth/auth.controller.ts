@@ -61,7 +61,7 @@ export class AuthController {
 		await this.authService.extractProfileFromCode(req, provider, code)
 
 		return res.redirect(
-			`${this.configService.getOrThrow<string>('ALLOWED_ORIGIN')}/settings/account`
+			`${this.configService.getOrThrow<string>('FRONTEND_URL')}/settings/account`
 		)
 	}
 

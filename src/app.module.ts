@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 
+import { AdminModule } from './admin/admin.module'
 import { AuthModule } from './auth/auth.module'
 import { EmailConfirmationModule } from './auth/email-confirmation/email-confirmation.module'
 import { PasswordRecoveryModule } from './auth/password-recovery/password-recovery.module'
@@ -28,6 +29,7 @@ import { UserModule } from './user/user.module'
 		}),
 		PrismaModule,
 		AuthModule,
+		AdminModule,
 		UserModule,
 		ProviderModule,
 		MailModule,

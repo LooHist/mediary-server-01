@@ -49,7 +49,10 @@ async function bootstrap() {
 	)
 
 	app.enableCors({
-		origin: config.getOrThrow<string>('ALLOWED_ORIGIN'),
+		origin: [
+			config.getOrThrow<string>('FRONTEND_URL'),
+			config.getOrThrow<string>('ADMIN_URL')
+		],
 		credentials: true,
 		exposedHeaders: ['set-cookie']
 	})
