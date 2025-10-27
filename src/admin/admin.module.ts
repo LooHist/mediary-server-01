@@ -1,16 +1,10 @@
 import { Module } from '@nestjs/common'
 
-import { UserModule } from '@/user/user.module'
-
-import { AdminAuthController } from './admin-auth.controller'
-import { AdminAuthService } from './admin-auth.service'
-import { AdminDashboardController } from './admin-dashboard.controller'
-import { AdminAuthGuard } from './guards/admin-auth.guard'
+import { AdminAuthModule } from './modules/auth/admin-auth.module'
+import { AdminDashboardModule } from './modules/dashboard/dashboard.module'
 
 @Module({
-	imports: [UserModule],
-	controllers: [AdminAuthController, AdminDashboardController],
-	providers: [AdminAuthService, AdminAuthGuard],
-	exports: [AdminAuthService, AdminAuthGuard]
+	imports: [AdminAuthModule, AdminDashboardModule],
+	exports: [AdminAuthModule]
 })
 export class AdminModule {}

@@ -1,7 +1,6 @@
+import { TypeOptions } from '@api/modules/auth/provider/provider.constants'
+import { GoogleProvider } from '@api/modules/auth/provider/services/google.provider'
 import { ConfigService } from '@nestjs/config'
-
-import { TypeOptions } from '@/auth/provider/provider.constants'
-import { GoogleProvider } from '@/auth/provider/services/google.provider'
 
 export const getProvidersConfig = async (
 	configService: ConfigService

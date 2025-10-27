@@ -1,3 +1,5 @@
+import { AllExceptionsFilter, PrismaExceptionFilter } from '@common/filters'
+import { ms, parseBoolean, StringValue } from '@common/utils'
 import { ValidationPipe } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { NestFactory } from '@nestjs/core'
@@ -7,8 +9,6 @@ import * as session from 'express-session'
 import IORedis from 'ioredis'
 
 import { AppModule } from './app.module'
-import { ms, StringValue } from './libs/common/utils/ms.util'
-import { parseBoolean } from './libs/common/utils/parse-boolean.util'
 
 async function bootstrap() {
 	const app = await NestFactory.create(AppModule)
@@ -18,9 +18,15 @@ async function bootstrap() {
 
 	app.use(cookieParser(config.getOrThrow<string>('COOKIES_SECRET')))
 
+	// Глобальні exception filters
+	app.useGlobalFilters(new AllExceptionsFilter(), new PrismaExceptionFilter())
+
+	// Глобальні pipes
 	app.useGlobalPipes(
 		new ValidationPipe({
-			transform: true
+			transform: true,
+			whitelist: true,
+			forbidNonWhitelisted: true
 		})
 	)
 

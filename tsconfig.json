@@ -11,8 +11,29 @@
         "outDir": "./dist",
         "baseUrl": "./",
         "paths": {
-            "@/*": [
-                "src/*"
+            "@api/*": [
+                "src/api/*"
+            ],
+            "@admin/*": [
+                "src/admin/*"
+            ],
+            "@core/*": [
+                "src/core/*"
+            ],
+            "@common/*": [
+                "src/common/*"
+            ],
+            "@config/*": [
+                "src/config/*"
+            ],
+            "@database/*": [
+                "src/database/*"
+            ],
+            "@infrastructure/*": [
+                "src/infrastructure/*"
+            ],
+            "@shared/*": [
+                "src/shared/*"
             ],
             "@prisma/__generated__": [
                 "prisma/__generated__"

@@ -1,25 +1,11 @@
+import { AdminModule } from '@admin/admin.module'
+import { ApiModule } from '@api/api.module'
+import { IS_DEV_ENV } from '@common/utils'
+import { ExternalModule } from '@core/external'
+import { PrismaModule } from '@database/prisma'
+import { MailModule } from '@infrastructure/mail'
 import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
-
-import { AdminModule } from './admin/admin.module'
-import { AuthModule } from './auth/auth.module'
-import { EmailConfirmationModule } from './auth/email-confirmation/email-confirmation.module'
-import { PasswordRecoveryModule } from './auth/password-recovery/password-recovery.module'
-import { ProviderModule } from './auth/provider/provider.module'
-import { TwoFactorAuthModule } from './auth/two-factor-auth/two-factor-auth.module'
-import { CategoryModule } from './category/category.module'
-import { ExternalModule } from './external/external.module'
-import { FavoritesModule } from './favorites/favorites.module'
-import { ImageModule } from './image/image.module'
-import { IS_DEV_ENV } from './libs/common/utils/is-dev.util'
-import { MailModule } from './libs/mail/mail.module'
-import { MediaRequestModule } from './media-request/media-request.module'
-import { MediaModule } from './media/media.module'
-import { PrismaModule } from './prisma/prisma.module'
-import { SearchModule } from './search/search.module'
-import { UserCategoriesModule } from './user-categories/user-categories.module'
-import { UserLibraryModule } from './user-library/user-library.module'
-import { UserModule } from './user/user.module'
 
 @Module({
 	imports: [
@@ -28,23 +14,10 @@ import { UserModule } from './user/user.module'
 			isGlobal: true
 		}),
 		PrismaModule,
-		AuthModule,
-		AdminModule,
-		UserModule,
-		ProviderModule,
 		MailModule,
-		EmailConfirmationModule,
-		PasswordRecoveryModule,
-		TwoFactorAuthModule,
-		MediaModule,
-		UserLibraryModule,
-		CategoryModule,
-		UserCategoriesModule,
-		MediaRequestModule,
-		FavoritesModule,
-		ImageModule,
-		SearchModule,
-		ExternalModule
+		ExternalModule,
+		ApiModule,
+		AdminModule
 	]
 })
 export class AppModule {}
