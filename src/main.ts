@@ -18,10 +18,10 @@ async function bootstrap() {
 
 	app.use(cookieParser(config.getOrThrow<string>('COOKIES_SECRET')))
 
-	// Глобальні exception filters
+	// Global exception filters
 	app.useGlobalFilters(new AllExceptionsFilter(), new PrismaExceptionFilter())
 
-	// Глобальні pipes
+	// Global pipes
 	app.useGlobalPipes(
 		new ValidationPipe({
 			transform: true,

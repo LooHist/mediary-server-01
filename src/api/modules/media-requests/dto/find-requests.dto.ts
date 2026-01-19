@@ -5,33 +5,33 @@ import { IsEnum, IsNumber, IsOptional, IsString, Min } from 'class-validator'
 export class FindRequestsDto {
 	@IsOptional()
 	@IsEnum(ModerationType)
-	status?: ModerationType // Фільтрація за статусом
+	status?: ModerationType // Filter by status
 
 	@IsOptional()
 	@IsEnum(MediaSource)
-	source?: MediaSource = MediaSource.TMDB // За замовчуванням TMDB
+	source?: MediaSource = MediaSource.TMDB // Default TMDB
 
 	@IsOptional()
 	@IsString()
-	categoryId?: string // Фільтрація за категорією
+	categoryId?: string // Filter by category
 
 	@IsOptional()
 	@IsString()
-	search?: string // Пошук за назвою медіа
+	search?: string // Search by media title
 
 	@IsOptional()
 	@IsString()
-	requestedById?: string // Фільтр за користувачем (для адмінів)
+	requestedById?: string // Filter by user (for admins)
 
 	@IsOptional()
 	@IsString()
-	moderatedById?: string // Фільтр за модератором
+	moderatedById?: string // Filter by moderator
 
 	@IsOptional()
 	@IsNumber()
 	@Min(1900)
 	@Type(() => Number)
-	year?: number // Рік випуску медіа
+	year?: number // Media release year
 
 	@IsOptional()
 	@IsNumber()

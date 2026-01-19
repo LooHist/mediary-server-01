@@ -10,11 +10,7 @@ import {
 export class CreateMediaRequestDto {
 	@IsEnum(MediaSource)
 	@IsOptional()
-	source?: MediaSource = MediaSource.TMDB // За замовчуванням TMDB для фільмів/серіалів
-
-	@IsString()
-	@IsOptional()
-	externalId?: string // ID з TMDB або іншого API
+	source?: MediaSource = MediaSource.CUSTOM // Default CUSTOM for user requests
 
 	@IsObject()
 	@IsNotEmpty()
@@ -24,32 +20,67 @@ export class CreateMediaRequestDto {
 		description: string
 		year: number
 		posterUrl?: string
-		// Додаткові поля специфічні для різних типів медіа
+		genres?: string[]
+		rating?: number
+		// Common fields for all media types
+		releaseDate?: string // DD/MM/YYYY
+		country?: string
+		originalLanguage?: string
+		// Additional fields specific to different media types
 		customFields?: {
-			// Для фільмів/серіалів (TMDB)
+			// Movie fields
 			director?: string[]
 			cast?: string[]
-			genres?: string[]
-			runtime?: number // хвилини
-			// TODO: Розширити для інших типів медіа
-			// Для книг (Google Books):
-			// author?: string[];
-			// publisher?: string;
-			// isbn?: string;
-			// pageCount?: number;
-			// Для аніме/манги (MAL):
-			// studio?: string;
-			// episodes?: number;
-			// chapters?: number;
+			runtime?: number // minutes (duration from form)
+			ageRating?: string
+			budget?: string
+
+			// Series fields
+			seasons?: number
+			episodes?: number
+			episodeDuration?: number // minutes
+			showrunner?: string
+			startDate?: string // DD/MM/YYYY
+			endDate?: string // DD/MM/YYYY
+			adaptedFrom?: string
+
+			// Book fields
+			pages?: number
+			format?: string
+			series?: string
+			volume?: string
+			isbn?: string
+			translator?: string
+			publicationYear?: number
+
+			// Game fields
+			platform?: string[]
+			developer?: string
+			gameplayGenre?: string
+			playtime?: number // hours
+			metacriticId?: number
+			steamId?: string
+			dlc?: string
+
+			// Manga/Manhwa fields
+			artist?: string
+			volumes?: number
+			chapters?: number
+			magazine?: string
+			adaptation?: string
+			colorType?: string
+
+			// Common fields for different media types
+			studio?: string // Movie, Series
+			status?: string // Series, Manga
+			author?: string[] // Book, Manga
+			publisher?: string // Book, Game
+
 			[key: string]: any
 		}
 	}
 
 	@IsString()
 	@IsNotEmpty()
-	categoryId: string // Категорія (Фільми/Серіали/тощо)
-
-	@IsString()
-	@IsOptional()
-	comment?: string // Коментар від користувача чому хоче додати це медіа
+	categoryId: string // Category (Movies/Series/etc.)
 }

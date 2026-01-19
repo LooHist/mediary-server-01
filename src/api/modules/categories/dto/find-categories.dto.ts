@@ -4,7 +4,7 @@ import { IsNumber, IsOptional, IsString, Min } from 'class-validator'
 export class FindCategoriesDto {
 	@IsOptional()
 	@IsString()
-	search?: string // Пошук за назвою категорії
+	search?: string // Search by category name
 
 	@IsOptional()
 	@IsNumber()

@@ -4,9 +4,9 @@ import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator'
 export class ModerateRequestDto {
 	@IsEnum(ModerationType)
 	@IsNotEmpty()
-	status: ModerationType // APPROVED або REJECTED
+	status: ModerationType // APPROVED or REJECTED
 
 	@IsString()
 	@IsOptional()
-	moderatorNote?: string // Нотатка модератора (особливо важливо при відхиленні)
+	moderatorNote?: string // Moderator note (especially important when rejecting)
 }

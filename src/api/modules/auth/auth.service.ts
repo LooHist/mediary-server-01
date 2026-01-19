@@ -49,7 +49,7 @@ export class AuthService {
 			false
 		)
 
-		// Ініціалізуємо дефолтні категорії для нового користувача
+		// Initialize default categories for new user
 		await this.userCategoriesService.initializeDefaultCategories(newUser.id)
 
 		await this.emailConfirmationService.sendVerificationToken(newUser.email)
@@ -138,7 +138,7 @@ export class AuthService {
 			true
 		)
 
-		// Ініціалізуємо дефолтні категорії для нового користувача
+		// Initialize default categories for new user
 		await this.userCategoriesService.initializeDefaultCategories(user.id)
 
 		if (!account) {

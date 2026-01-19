@@ -17,9 +17,7 @@ import { ImageService } from './image.service'
 export class ImageController {
 	constructor(private readonly imageService: ImageService) {}
 
-	/**
-	 * Проксування зображень з TMDB та інших джерел
-	 */
+	/** Proxy images from TMDB and other sources **/
 	@Get('proxy')
 	async proxyImage(
 		@Res() res: Response,
@@ -28,7 +26,7 @@ export class ImageController {
 		@Query('h') height?: string
 	) {
 		if (!url) {
-			throw new BadRequestException("URL зображення обов'язковий")
+			throw new BadRequestException('Image URL is required')
 		}
 
 		try {
@@ -39,26 +37,24 @@ export class ImageController {
 
 			const imageBuffer = await this.imageService.proxyImage(url, options)
 
-			// Визначаємо тип контенту
+			// Determine content type
 			const contentType = this.getContentType(url)
 
 			res.set({
 				'Content-Type': contentType,
-				'Cache-Control': 'public, max-age=31536000', // 1 рік
+				'Cache-Control': 'public, max-age=31536000', // 1 year
 				'Content-Length': imageBuffer.length.toString()
 			})
 
 			res.send(imageBuffer)
 		} catch (error) {
 			throw new BadRequestException(
-				`Помилка проксування зображення: ${error.message}`
+				`Error proxying image: ${error.message}`
 			)
 		}
 	}
 
-	/**
-	 * Отримання URL для TMDB постера
-	 */
+	/** Get URL for TMDB poster **/
 	@Get('tmdb-poster')
 	async getTMDBPosterUrl(
 		@Query('path') posterPath: string,
@@ -66,7 +62,7 @@ export class ImageController {
 		size?: 'w92' | 'w154' | 'w185' | 'w342' | 'w500' | 'w780' | 'original'
 	) {
 		if (!posterPath) {
-			throw new BadRequestException("Шлях до постера обов'язковий")
+			throw new BadRequestException('Poster path is required')
 		}
 
 		const imageUrl = await this.imageService.processTMDBImage(
@@ -77,61 +73,56 @@ export class ImageController {
 		return { url: imageUrl }
 	}
 
-	/**
-	 * Завантаження користувацького зображення
-	 */
+	/** Upload user image **/
 	@Post('upload')
 	@UseInterceptors(FileInterceptor('image'))
 	async uploadImage(@UploadedFile() file: any) {
 		if (!file) {
-			throw new BadRequestException("Файл зображення обов'язковий")
+			throw new BadRequestException('Image file is required')
 		}
 
-		// Перевіряємо тип файлу
+		// Check file type
 		const allowedTypes = ['image/jpeg', 'image/png', 'image/webp']
 		if (!allowedTypes.includes(file.mimetype)) {
 			throw new BadRequestException(
-				'Підтримуються лише JPEG, PNG та WebP файли'
+				'Only JPEG, PNG and WebP files are supported'
 			)
 		}
 
-		// Перевіряємо розмір (макс 5MB)
-		const maxSize = 5 * 1024 * 1024
+		// Check file size (max 4MB)
+		const maxSize = 4 * 1024 * 1024
 		if (file.size > maxSize) {
 			throw new BadRequestException(
-				'Розмір файлу не повинен перевищувати 5MB'
+				'File size must not exceed 4MB'
 			)
 		}
 
 		try {
-			const cloudinaryUrl = await this.imageService.uploadToCloudinary({
+			const r2Url = await this.imageService.uploadToR2({
 				path: file.path,
-				originalname: file.originalname
+				originalname: file.originalname,
+				mimetype: file.mimetype
 			})
 
 			return {
-				url: cloudinaryUrl,
+				url: r2Url,
 				originalName: file.originalname,
 				size: file.size
 			}
 		} catch (error) {
 			throw new BadRequestException(
-				`Помилка завантаження: ${error.message}`
+				`Upload error: ${error.message}`
 			)
 		}
 	}
 
-	/**
-	 * Статистика зображень
-	 */
+	/** Image statistics **/
 	@Get('stats')
 	async getImageStats() {
 		return this.imageService.getImageStats()
 	}
 
-	/**
-	 * Очищення старих зображень (адмін ендпоінт)
-	 */
+	/** Cleanup old images (admin endpoint) **/
 	@Post('cleanup')
 	async cleanupImages(@Query('days') days?: string) {
 		const daysToKeep = days ? parseInt(days, 10) : 30
@@ -139,7 +130,7 @@ export class ImageController {
 		await this.imageService.cleanupOldImages(daysToKeep)
 
 		return {
-			message: `Очищено зображення старші за ${daysToKeep} днів`
+			message: `Cleaned up images older than ${daysToKeep} days`
 		}
 	}
 
@@ -154,8 +145,6 @@ export class ImageController {
 				return 'image/png'
 			case 'webp':
 				return 'image/webp'
-			case 'gif':
-				return 'image/gif'
 			default:
 				return 'image/jpeg'
 		}

@@ -24,7 +24,7 @@ import { ImageService } from './image.service'
 				}
 			}),
 			limits: {
-				fileSize: 5 * 1024 * 1024 // 5MB
+				fileSize: 4 * 1024 * 1024 // 4MB
 			}
 		})
 	],

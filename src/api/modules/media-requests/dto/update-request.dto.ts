@@ -13,8 +13,4 @@ export class UpdateRequestDto {
 			[key: string]: any
 		}
 	}
-
-	@IsString()
-	@IsOptional()
-	comment?: string // Оновлення коментаря
 }

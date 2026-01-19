@@ -38,7 +38,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
 			})
 		}
 
-		// Логування критичних помилок
+		// Log critical errors
 		if (status >= 500) {
 			this.logger.error(
 				`${request.method} ${request.url}`,

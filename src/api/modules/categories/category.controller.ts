@@ -11,13 +11,13 @@ import { CategoryService } from './category.service'
 export class CategoryController {
 	constructor(private readonly categoryService: CategoryService) {}
 
-	// Отримання всіх категорій (публічно)
+	// Get all categories (public)
 	@Get()
 	findAll() {
 		return this.categoryService.findAll()
 	}
 
-	// Ініціалізація початкових категорій (тільки адміни)
+	// Initialize initial categories (admins only)
 	@Get('seed')
 	@UseGuards(AuthGuard, RolesGuard)
 	@Roles(UserRole.ADMIN)
@@ -25,13 +25,13 @@ export class CategoryController {
 		return this.categoryService.seedInitialCategories()
 	}
 
-	// Отримання категорії за ID (публічно)
+	// Get category by ID (public)
 	@Get(':id')
 	findOne(@Param('id') id: string) {
 		return this.categoryService.findOne(id)
 	}
 
-	// Отримання медіа категорії (публічно)
+	// Get category media (public)
 	@Get(':id/media')
 	getCategoryMedia(
 		@Param('id') id: string,

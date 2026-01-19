@@ -14,7 +14,7 @@ export class ValidationExceptionFilter implements ExceptionFilter {
 		const status = exception.getStatus()
 		const exceptionResponse = exception.getResponse()
 
-		// Перетворюємо помилки валідації в зручний формат
+		// Transform validation errors into convenient format
 		let errors: string[] = []
 
 		if (

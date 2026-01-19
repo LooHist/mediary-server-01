@@ -6,7 +6,7 @@ import { Category } from '@prisma/client'
 export class CategoryService {
 	constructor(private readonly prisma: PrismaService) {}
 
-	// Фіксований список категорій
+	// Fixed list of categories
 	private readonly FIXED_CATEGORIES = [
 		{ name: 'Movies' },
 		{ name: 'Series' },
@@ -18,7 +18,7 @@ export class CategoryService {
 		{ name: 'Manhwa' }
 	] as const
 
-	// Ініціалізація фіксованих категорій
+	// Initialize fixed categories
 	async seedInitialCategories(): Promise<Category[]> {
 		const categories: Category[] = []
 
@@ -34,7 +34,7 @@ export class CategoryService {
 		return categories
 	}
 
-	// Отримання всіх категорій
+	// Get all categories
 	async findAll() {
 		return this.prisma.category.findMany({
 			orderBy: { name: 'asc' },
@@ -48,7 +48,7 @@ export class CategoryService {
 		})
 	}
 
-	// Отримання категорії за ID
+	// Get category by ID
 	async findOne(id: string): Promise<Category> {
 		const category = await this.prisma.category.findUnique({
 			where: { id },
@@ -62,13 +62,13 @@ export class CategoryService {
 		})
 
 		if (!category) {
-			throw new Error('Категорію не знайдено')
+			throw new Error('Category not found')
 		}
 
 		return category
 	}
 
-	// Отримання категорії за назвою
+	// Get category by name
 	async findByName(name: string): Promise<Category | null> {
 		return this.prisma.category.findUnique({
 			where: { name },
@@ -82,13 +82,13 @@ export class CategoryService {
 		})
 	}
 
-	// Отримання медіа категорії з пагінацією
+	// Get category media with pagination
 	async getCategoryMedia(
 		categoryId: string,
 		page: number = 1,
 		limit: number = 20
 	) {
-		// Перевіряємо чи існує категорія
+		// Check if category exists
 		await this.findOne(categoryId)
 
 		const skip = (page - 1) * limit

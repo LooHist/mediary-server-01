@@ -8,50 +8,50 @@ export class GetLibraryDto {
 		value === undefined ? undefined : Array.isArray(value) ? value : [value]
 	)
 	@IsEnum(Status, { each: true })
-	statuses?: Status[] // Масив статусів
+	statuses?: Status[] // Array of statuses
 
 	@IsOptional()
 	@IsString()
-	categoryName?: string // Для фільтрації за назвою категорії (Movies, Series, etc.)
+	categoryName?: string // For filtering by category name (Movies, Series, etc.)
 
 	@IsOptional()
 	@IsEnum(MediaSource)
-	source?: MediaSource // Більше не фіксуємо TMDB за замовчуванням
+	source?: MediaSource // No longer defaulting to TMDB
 
 	@IsOptional()
 	@IsString()
-	search?: string // Пошук за назвою
+	search?: string // Search by title
 
 	@IsOptional()
 	@Transform(({ value }) =>
 		value === undefined ? undefined : Array.isArray(value) ? value : [value]
 	)
 	@IsString({ each: true })
-	genres?: string[] // Фільтрація за жанрами
+	genres?: string[] // Filter by genres
 
 	@IsOptional()
 	@IsNumber()
 	@Min(1)
 	@Type(() => Number)
-	minRating?: number // Мінімальний рейтинг для фільтрації
+	minRating?: number // Minimum rating for filtering
 
 	@IsOptional()
 	@IsNumber()
 	@Min(1)
 	@Type(() => Number)
-	maxRating?: number // Максимальний рейтинг для фільтрації
+	maxRating?: number // Maximum rating for filtering
 
 	@IsOptional()
 	@IsNumber()
 	@Min(1900)
 	@Type(() => Number)
-	minYear?: number // Мінімальний рік випуску
+	minYear?: number // Minimum release year
 
 	@IsOptional()
 	@IsNumber()
 	@Min(1900)
 	@Type(() => Number)
-	maxYear?: number // Максимальний рік випуску
+	maxYear?: number // Maximum release year
 
 	@IsOptional()
 	@IsNumber()

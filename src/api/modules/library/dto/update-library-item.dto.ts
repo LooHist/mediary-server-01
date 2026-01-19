@@ -18,7 +18,7 @@ export class UpdateLibraryItemDto {
 	@IsOptional()
 	@Min(1, { message: 'Rating must be at least 1' })
 	@Max(10, { message: 'Rating must be at most 10' })
-	rating?: number // Рейтинг від 1 до 10
+	rating?: number // Rating from 1 to 10
 
 	@IsString()
 	@IsOptional()

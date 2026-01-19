@@ -29,7 +29,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
 					: (exceptionResponse as any).message || 'Unknown error'
 		}
 
-		// Логування помилок
+		// Log errors
 		this.logger.error(
 			`${request.method} ${request.url}`,
 			JSON.stringify(errorResponse),

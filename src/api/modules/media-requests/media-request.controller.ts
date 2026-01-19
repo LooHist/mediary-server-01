@@ -29,7 +29,7 @@ import { MediaRequestService } from './media-request.service'
 export class MediaRequestController {
 	constructor(private readonly mediaRequestService: MediaRequestService) {}
 
-	// Створення нового запиту на додавання медіа
+	// Create a new media request
 	@Post()
 	create(
 		@Request() req: any,
@@ -38,7 +38,7 @@ export class MediaRequestController {
 		return this.mediaRequestService.create(req.user.id, createRequestDto)
 	}
 
-	// Отримання всіх запитів (з правами доступу)
+	// Get all requests (with access rights)
 	@Get()
 	findAll(@Request() req: any, @Query() findRequestsDto: FindRequestsDto) {
 		return this.mediaRequestService.findAll(
@@ -48,7 +48,7 @@ export class MediaRequestController {
 		)
 	}
 
-	// Отримання статистики запитів (тільки адміни)
+	// Get requests statistics (admins only)
 	@Get('stats')
 	@UseGuards(RolesGuard)
 	@Roles(UserRole.ADMIN)
@@ -56,7 +56,7 @@ export class MediaRequestController {
 		return this.mediaRequestService.getRequestsStats()
 	}
 
-	// Отримання запитів поточного користувача
+	// Get current user's requests
 	@Get('my')
 	getMyRequests(
 		@Request() req: any,
@@ -65,27 +65,36 @@ export class MediaRequestController {
 		return this.mediaRequestService.getUserRequests(req.user.id, status)
 	}
 
-	// Отримання запитів що очікують модерації (тільки адміни)
+	// Get requests awaiting moderation (admins and moderators only)
+	// Moderators and admins see all requests awaiting moderation
 	@Get('pending')
 	@UseGuards(RolesGuard)
-	@Roles(UserRole.ADMIN)
-	getPendingRequests(@Query() findRequestsDto: FindRequestsDto) {
-		return this.mediaRequestService.findAll({
-			...findRequestsDto,
-			status: ModerationType.PENDING
-		})
+	@Roles(UserRole.ADMIN, UserRole.MODERATOR)
+	getPendingRequests(
+		@Request() req: any,
+		@Query() findRequestsDto: FindRequestsDto
+	) {
+		// For endpoint /pending, moderators and admins should see all requests
+		// So we pass skipUserFilter = true through a separate call
+		return this.mediaRequestService.findAllForModeration(
+			{
+				...findRequestsDto,
+				status: ModerationType.PENDING
+			},
+			req.user.role
+		)
 	}
 
-	// Отримання конкретного запиту
+	// Get a specific request
 	@Get(':id')
 	findOne(@Request() req: any, @Param('id') id: string) {
 		return this.mediaRequestService.findOne(id, req.user.id, req.user.role)
 	}
 
-	// Модерація запиту (схвалення/відхилення) - тільки адміни
+	// Moderate request (approve/reject) - admins and moderators
 	@Patch(':id/moderate')
 	@UseGuards(RolesGuard)
-	@Roles(UserRole.ADMIN)
+	@Roles(UserRole.ADMIN, UserRole.MODERATOR)
 	moderate(
 		@Request() req: any,
 		@Param('id') id: string,
@@ -94,7 +103,7 @@ export class MediaRequestController {
 		return this.mediaRequestService.moderate(id, req.user.id, moderateDto)
 	}
 
-	// Оновлення запиту користувачем
+	// Update request by user
 	@Patch(':id')
 	update(
 		@Request() req: any,
@@ -104,7 +113,7 @@ export class MediaRequestController {
 		return this.mediaRequestService.update(id, req.user.id, updateDto)
 	}
 
-	// Видалення запиту
+	// Delete request
 	@Delete(':id')
 	remove(@Request() req: any, @Param('id') id: string) {
 		return this.mediaRequestService.remove(id, req.user.id, req.user.role)
