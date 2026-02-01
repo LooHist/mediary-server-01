@@ -22,7 +22,7 @@ const SEARCH_CONFIGS: Record<SearchMediaType, SearchConfig> = {
 		maxResults: 20,
 		parallelRequests: 5
 	},
-	[SEARCH_MEDIA_TYPE.TV_SHOW.value]: {
+	[SEARCH_MEDIA_TYPE.SERIES.value]: {
 		maxPages: 10,
 		maxResults: 20,
 		parallelRequests: 5
@@ -92,7 +92,7 @@ export class SearchService {
 		const searchStrategies = {
 			[SEARCH_MEDIA_TYPE.MOVIE.value]: () =>
 				this.searchMedia(query, 'movies'),
-			[SEARCH_MEDIA_TYPE.TV_SHOW.value]: () =>
+			[SEARCH_MEDIA_TYPE.SERIES.value]: () =>
 				this.searchMedia(query, 'tv'),
 			[SEARCH_MEDIA_TYPE.BOOK.value]: () => this.searchBooks(query)
 		}
@@ -111,7 +111,7 @@ export class SearchService {
 			SEARCH_CONFIGS[
 				type === 'movies'
 					? SEARCH_MEDIA_TYPE.MOVIE.value
-					: SEARCH_MEDIA_TYPE.TV_SHOW.value
+					: SEARCH_MEDIA_TYPE.SERIES.value
 			]
 
 		try {
@@ -402,7 +402,7 @@ export class SearchService {
 		const mediaType =
 			item.media_type === 'movie'
 				? SEARCH_MEDIA_TYPE.MOVIE.value
-				: SEARCH_MEDIA_TYPE.TV_SHOW.value
+				: SEARCH_MEDIA_TYPE.SERIES.value
 
 		return {
 			id: `tmdb_${item.id}`,

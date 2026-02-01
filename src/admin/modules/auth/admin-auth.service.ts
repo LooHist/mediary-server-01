@@ -1,4 +1,5 @@
 import { UserService } from '@api/modules/users/user.service'
+import { createRedisClient } from '@common/utils'
 import { Injectable } from '@nestjs/common'
 import { UserRole } from '@prisma/client'
 import { verify } from 'argon2'
@@ -22,7 +23,7 @@ export class AdminAuthService {
 	private redis: IORedis
 
 	constructor(private readonly userService: UserService) {
-		this.redis = new IORedis(
+		this.redis = createRedisClient(
 			process.env.REDIS_URI || 'redis://localhost:6379'
 		)
 

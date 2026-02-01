@@ -1,12 +1,11 @@
 import { AllExceptionsFilter, PrismaExceptionFilter } from '@common/filters'
-import { ms, parseBoolean, StringValue } from '@common/utils'
+import { createRedisClient, ms, parseBoolean, StringValue } from '@common/utils'
 import { ValidationPipe } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { NestFactory } from '@nestjs/core'
 import RedisStore from 'connect-redis'
 import * as cookieParser from 'cookie-parser'
 import * as session from 'express-session'
-import IORedis from 'ioredis'
 
 import { AppModule } from './app.module'
 
@@ -14,7 +13,9 @@ async function bootstrap() {
 	const app = await NestFactory.create(AppModule)
 
 	const config = app.get(ConfigService)
-	const redis = new IORedis(config.getOrThrow('REDIS_URI'))
+	// Use REDIS_URI if available, otherwise createRedisClient will use separate env variables
+	const redisUri = config.get<string>('REDIS_URI') || 'redis://localhost:6379'
+	const redis = createRedisClient(redisUri)
 
 	app.use(cookieParser(config.getOrThrow<string>('COOKIES_SECRET')))
 

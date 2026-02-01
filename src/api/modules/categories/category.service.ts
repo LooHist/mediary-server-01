@@ -13,7 +13,7 @@ export class CategoryService {
 		{ name: 'Books' },
 		{ name: 'Anime' },
 		{ name: 'Games' },
-		{ name: 'Dramas' },
+		{ name: 'KDramas' },
 		{ name: 'Manga' },
 		{ name: 'Manhwa' }
 	] as const

@@ -2,6 +2,7 @@ export * from './is-dev.util'
 export * from './ms.util'
 export * from './normalize-title.util'
 export * from './parse-boolean.util'
+export * from './redis.util'
 export * from './sanitize-text.util'
 
 // Export types

@@ -15,11 +15,11 @@ export class UserLibraryItemsService {
 	/* Fixed category mapping */
 	private readonly categoryMap = {
 		movie: 'Movies',
-		tv_show: 'Series',
+		series: 'Series',
 		book: 'Books',
 		anime: 'Anime',
 		game: 'Games',
-		drama: 'Dramas',
+		kdrama: 'KDramas',
 		manga: 'Manga',
 		manhwa: 'Manhwa'
 	} as const

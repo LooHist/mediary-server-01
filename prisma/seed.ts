@@ -1,9 +1,12 @@
+import 'dotenv/config'
 import { AuthMethod, PrismaClient, UserRole } from '@prisma/client'
 import { hash } from 'argon2'
 
 const prisma = new PrismaClient()
 
 async function main() {
+	console.log('DATABASE_URL:', process.env.DATABASE_URL)
+
 	console.log('🌱 Starting seeding...')
 
 	// Створюємо категорії
@@ -13,7 +16,7 @@ async function main() {
 		{ name: 'Books' },
 		{ name: 'Anime' },
 		{ name: 'Games' },
-		{ name: 'Dramas' },
+		{ name: 'KDramas' },
 		{ name: 'Manga' },
 		{ name: 'Manhwa' }
 	]

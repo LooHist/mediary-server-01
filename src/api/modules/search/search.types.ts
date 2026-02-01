@@ -1,6 +1,6 @@
 export const SEARCH_MEDIA_TYPE = {
 	MOVIE: { value: 'movie', label: 'Movies' },
-	TV_SHOW: { value: 'tv_show', label: 'Serials' },
+	SERIES: { value: 'series', label: 'Serials' },
 	BOOK: { value: 'book', label: 'Books' }
 } as const
 
