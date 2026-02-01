@@ -1,7 +1,7 @@
 import { PrismaModule } from '@database/prisma'
 import { Module } from '@nestjs/common'
 
-import { UserCategoriesModule } from '../user-categories/user-categories.module'
+import { UserCollectionsModule } from '../user-collections/user-collections.module'
 import { UserModule } from '../users/user.module'
 
 import { UserLibraryFilteringService } from './filtering'
@@ -13,7 +13,7 @@ import { UserLibraryController } from './user-library.controller'
 import { UserLibraryService } from './user-library.service'
 
 @Module({
-	imports: [PrismaModule, UserModule, UserCategoriesModule],
+	imports: [PrismaModule, UserModule, UserCollectionsModule],
 	controllers: [UserLibraryController],
 	providers: [
 		UserLibraryService,

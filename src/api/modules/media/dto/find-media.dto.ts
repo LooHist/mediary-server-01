@@ -9,7 +9,7 @@ export class FindMediaDto {
 
 	@IsOptional()
 	@IsString()
-	categoryId?: string
+	collectionId?: string
 
 	@IsOptional()
 	@IsEnum(MediaSource)

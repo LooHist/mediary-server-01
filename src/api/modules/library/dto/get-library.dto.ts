@@ -12,7 +12,7 @@ export class GetLibraryDto {
 
 	@IsOptional()
 	@IsString()
-	categoryName?: string // For filtering by category name (Movies, Series, etc.)
+	collectionName?: string // For filtering by collection name (Movies, Series, etc.)
 
 	@IsOptional()
 	@IsEnum(MediaSource)

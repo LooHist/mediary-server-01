@@ -1,4 +1,4 @@
-import { UserCategoriesModule } from '@api/modules/user-categories/user-categories.module'
+import { UserCollectionsModule } from '@api/modules/user-collections/user-collections.module'
 import { UserService } from '@api/modules/users/user.service'
 import { getProvidersConfig } from '@config/providers.config'
 import { getRecaptchaConfig } from '@config/recaptcha.config'
@@ -26,7 +26,7 @@ import { TwoFactorAuthService } from './two-factor-auth/two-factor-auth.service'
 			inject: [ConfigService]
 		}),
 		forwardRef(() => EmailConfirmationModule),
-		UserCategoriesModule
+		UserCollectionsModule
 	],
 	controllers: [AuthController],
 	providers: [AuthService, UserService, MailService, TwoFactorAuthService],

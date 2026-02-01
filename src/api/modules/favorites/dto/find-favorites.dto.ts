@@ -8,7 +8,7 @@ export class FindFavoritesDto {
 
 	@IsOptional()
 	@IsString()
-	categoryId?: string
+	collectionId?: string
 
 	@IsOptional()
 	@Transform(({ value }) => parseInt(value))

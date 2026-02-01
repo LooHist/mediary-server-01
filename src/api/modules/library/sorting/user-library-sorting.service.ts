@@ -35,7 +35,7 @@ export class UserLibrarySortingService {
 				include: {
 					media: {
 						include: {
-							category: true,
+							collection: true,
 							favorites: {
 								where: { userId },
 								select: { id: true }
@@ -101,7 +101,7 @@ export class UserLibrarySortingService {
 				include: {
 					media: {
 						include: {
-							category: true,
+							collection: true,
 							favorites: {
 								where: { userId },
 								select: { id: true }

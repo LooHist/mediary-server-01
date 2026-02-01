@@ -13,7 +13,7 @@ export class FindRequestsDto {
 
 	@IsOptional()
 	@IsString()
-	categoryId?: string // Filter by category
+	collectionId?: string // Filter by collection
 
 	@IsOptional()
 	@IsString()

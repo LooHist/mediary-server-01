@@ -7,13 +7,13 @@ import {
 } from '@nestjs/common'
 import { MediaSource, Prisma, UserLibrary } from '@prisma/client'
 
-import { UserCategoriesService } from '../../user-categories/user-categories.service'
+import { UserCollectionsService } from '../../user-collections/user-collections.service'
 import { AddFromSearchDto, UpdateLibraryItemDto } from '../dto'
 
 @Injectable()
 export class UserLibraryItemsService {
-	/* Fixed category mapping */
-	private readonly categoryMap = {
+	/* Fixed collection mapping */
+	private readonly collectionMap = {
 		movie: 'Movies',
 		series: 'Series',
 		book: 'Books',
@@ -26,7 +26,7 @@ export class UserLibraryItemsService {
 
 	constructor(
 		private readonly prisma: PrismaService,
-		private readonly userCategoriesService: UserCategoriesService
+		private readonly userCollectionsService: UserCollectionsService
 	) {}
 
 	/**
@@ -40,32 +40,32 @@ export class UserLibraryItemsService {
 
 		let createdNewMedia = false
 
-		// Determine category based on media type
-		const categoryName =
-			this.categoryMap[
-				searchResult.type as keyof typeof this.categoryMap
+		// Determine collection based on media type
+		const collectionName =
+			this.collectionMap[
+				searchResult.type as keyof typeof this.collectionMap
 			] || 'Movies'
 
-		// Find existing category (categories are pre-seeded)
-		let category = await this.prisma.category.findUnique({
-			where: { name: categoryName }
+		// Find existing collection (collections are pre-seeded)
+		let collection = await this.prisma.collection.findUnique({
+			where: { name: collectionName }
 		})
 
-		if (!category) {
-			// This should rarely happen as categories are pre-seeded
-			category = await this.prisma.category.create({
-				data: { name: categoryName }
+		if (!collection) {
+			// This should rarely happen as collections are pre-seeded
+			collection = await this.prisma.collection.create({
+				data: { name: collectionName }
 			})
 		}
 
-		// Ensure category is added to user's personal categories
+		// Ensure collection is added to user's personal collections
 		try {
-			await this.userCategoriesService.addCategoryToUser(
+			await this.userCollectionsService.addCollectionToUser(
 				userId,
-				category.id
+				collection.id
 			)
 		} catch (error) {
-			// Category might already be added, which is fine
+			// Collection might already be added, which is fine
 			if (!error.message.includes('already added')) {
 				throw error
 			}
@@ -96,7 +96,7 @@ export class UserLibraryItemsService {
 						genres: searchResult.genres || [],
 						rating: searchResult.rating
 					},
-					categoryId: category.id,
+					collectionId: collection.id,
 					addedById: userId
 				}
 			})
@@ -129,7 +129,7 @@ export class UserLibraryItemsService {
 			include: {
 				media: {
 					include: {
-						category: true,
+						collection: true,
 						_count: {
 							select: {
 								library: true,
@@ -204,7 +204,7 @@ export class UserLibraryItemsService {
 			include: {
 				media: {
 					include: {
-						category: true,
+						collection: true,
 						_count: {
 							select: {
 								library: true,
@@ -291,7 +291,7 @@ export class UserLibraryItemsService {
 			include: {
 				media: {
 					include: {
-						category: true,
+						collection: true,
 						_count: {
 							select: {
 								library: true,

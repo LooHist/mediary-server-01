@@ -1,7 +1,11 @@
 import { IsNotEmpty, IsString } from 'class-validator'
 
-export class RemoveCategoryDto {
+export class AddCollectionDto {
 	@IsString()
 	@IsNotEmpty()
-	categoryId: string
+	collectionId: string
 }
+
+
+
+

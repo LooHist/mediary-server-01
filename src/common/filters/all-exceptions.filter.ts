@@ -46,10 +46,18 @@ export class AllExceptionsFilter implements ExceptionFilter {
 				exception instanceof Error ? exception.stack : undefined
 			)
 		} else {
-			this.logger.warn(
-				`${request.method} ${request.url}`,
-				JSON.stringify(errorResponse)
-			)
+			// Don't log 401 errors for /users/profile as it's expected behavior during session check
+			const isUnauthorizedSessionCheck =
+				status === HttpStatus.UNAUTHORIZED &&
+				request.url === '/users/profile' &&
+				request.method === 'GET'
+
+			if (!isUnauthorizedSessionCheck) {
+				this.logger.warn(
+					`${request.method} ${request.url}`,
+					JSON.stringify(errorResponse)
+				)
+			}
 		}
 
 		response.status(status).json(errorResponse)

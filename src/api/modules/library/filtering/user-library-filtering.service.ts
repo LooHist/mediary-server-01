@@ -17,7 +17,7 @@ export class UserLibraryFilteringService {
 	): Prisma.UserLibraryWhereInput {
 		const {
 			statuses,
-			categoryName,
+			collectionName,
 			source,
 			search,
 			genres,
@@ -35,9 +35,9 @@ export class UserLibraryFilteringService {
 			...(maxRating && { rating: { lte: maxRating } }),
 			media: {
 				...(source && { source }), // Filter by source (TMDB for movies/TV shows)
-				...(categoryName && {
-					category: {
-						name: categoryName
+				...(collectionName && {
+					collection: {
+						name: collectionName
 					}
 				}),
 				...(search && {
@@ -95,7 +95,7 @@ export class UserLibraryFilteringService {
 		return {
 			media: {
 				include: {
-					category: true,
+					collection: true,
 					favorites: {
 						where: { userId },
 						select: { id: true }

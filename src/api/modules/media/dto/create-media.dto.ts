@@ -37,7 +37,7 @@ export class CreateMediaDto {
 
 	@IsString()
 	@IsNotEmpty()
-	categoryId: string
+	collectionId: string
 
 	@IsString()
 	@IsOptional()

@@ -11,5 +11,5 @@ export class UpdateUserDto {
 	email: string
 
 	@IsBoolean({ message: 'isTwoFactorEnabled must be a boolean value.' })
-	isTwoFactorEnabled: boolean
+	isTwoFactorEnabled: boolean 
 }

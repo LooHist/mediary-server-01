@@ -34,10 +34,10 @@ export class MediaRequestStatsService {
 				where: { status: ModerationType.REJECTED }
 			}),
 
-			// Distribution by categories
+			// Distribution by collections
 			this.prisma.mediaRequest.groupBy({
-				by: ['categoryId'],
-				_count: { categoryId: true }
+				by: ['collectionId'],
+				_count: { collectionId: true }
 			}),
 
 			// Last 5 requests
@@ -51,7 +51,7 @@ export class MediaRequestStatsService {
 							displayName: true
 						}
 					},
-					category: true
+					collection: true
 				}
 			})
 		])
@@ -70,7 +70,7 @@ export class MediaRequestStatsService {
 				id: request.id,
 				title: (request.mediaData as any).title,
 				requestedBy: request.requestedBy.displayName,
-				category: request.category.name,
+				collection: request.collection.name,
 				status: request.status,
 				createdAt: request.createdAt
 			}))
@@ -87,7 +87,7 @@ export class MediaRequestStatsService {
 		const requests = await this.prisma.mediaRequest.findMany({
 			where,
 			include: {
-				category: true,
+				collection: true,
 				moderatedBy: {
 					select: {
 						id: true,

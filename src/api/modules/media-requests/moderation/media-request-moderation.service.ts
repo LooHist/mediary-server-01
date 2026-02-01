@@ -27,7 +27,7 @@ export class MediaRequestModerationService {
 						picture: true
 					}
 				},
-				category: true
+				collection: true
 			}
 		})
 
@@ -68,7 +68,7 @@ export class MediaRequestModerationService {
 					mediaData: request.mediaData,
 					searchableTitle: request.searchableTitle,
 					externalIds: request.externalIds,
-					categoryId: request.categoryId,
+					collectionId: request.collectionId,
 					addedById: request.requestedById // Request author becomes media author
 				}
 			})
@@ -99,7 +99,7 @@ export class MediaRequestModerationService {
 						picture: true
 					}
 				},
-				category: true,
+				collection: true,
 				approvedMedia: true
 			}
 		})

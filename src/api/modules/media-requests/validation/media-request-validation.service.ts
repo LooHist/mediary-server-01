@@ -10,18 +10,18 @@ export class MediaRequestValidationService {
 	async checkExistingMedia(
 		searchableTitle: string,
 		source?: MediaSource,
-		categoryId?: string
+		collectionId?: string
 	) {
 		const where: Prisma.MediaWhereInput = {
-			// For CUSTOM source, check by title + category
+			// For CUSTOM source, check by title + collection
 			// For other sources - only by title
-			...(source === MediaSource.CUSTOM && categoryId
+			...(source === MediaSource.CUSTOM && collectionId
 				? {
 						searchableTitle: {
 							equals: searchableTitle,
 							mode: 'insensitive'
 						},
-						categoryId
+						collectionId
 				  }
 				: {
 						searchableTitle: {
@@ -38,19 +38,19 @@ export class MediaRequestValidationService {
 	async checkExistingRequest(
 		searchableTitle: string,
 		source?: MediaSource,
-		categoryId?: string
+		collectionId?: string
 	) {
 		const where: Prisma.MediaRequestWhereInput = {
 			status: { in: [ModerationType.PENDING, ModerationType.APPROVED] },
-			// For CUSTOM source, check by title + category
+			// For CUSTOM source, check by title + collection
 			// For other sources - only by title
-			...(source === MediaSource.CUSTOM && categoryId
+			...(source === MediaSource.CUSTOM && collectionId
 				? {
 						searchableTitle: {
 							equals: searchableTitle,
 							mode: 'insensitive'
 						},
-						categoryId
+						collectionId
 				  }
 				: {
 						searchableTitle: {

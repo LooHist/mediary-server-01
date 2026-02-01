@@ -137,7 +137,7 @@ export class UserLibraryService {
 			include: {
 				media: {
 					include: {
-						category: true
+						collection: true
 					}
 				}
 			}
@@ -147,20 +147,20 @@ export class UserLibraryService {
 			return { data: [], message: 'Not enough data for recommendations' }
 		}
 
-		// Get popular categories from favorite media
-		const categoryIds = favoriteItems.map(item => item.media.categoryId)
-		const uniqueCategoryIds = [...new Set(categoryIds)]
+		// Get popular collections from favorite media
+		const collectionIds = favoriteItems.map(item => item.media.collectionId)
+		const uniqueCollectionIds = [...new Set(collectionIds)]
 
 		// Find media that user hasn't added to library
 		const recommendations = await this.prisma.media.findMany({
 			where: {
-				categoryId: { in: uniqueCategoryIds },
+				collectionId: { in: uniqueCollectionIds },
 				library: {
 					none: { userId } // Media that user hasn't added to library
 				}
 			},
 			include: {
-				category: true,
+				collection: true,
 				_count: {
 					select: {
 						library: true,

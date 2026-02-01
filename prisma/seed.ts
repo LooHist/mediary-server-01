@@ -9,8 +9,8 @@ async function main() {
 
 	console.log('🌱 Starting seeding...')
 
-	// Створюємо категорії
-	const categories = [
+	// Створюємо колекції
+	const collections = [
 		{ name: 'Movies' },
 		{ name: 'Series' },
 		{ name: 'Books' },
@@ -21,15 +21,15 @@ async function main() {
 		{ name: 'Manhwa' }
 	]
 
-	for (const categoryData of categories) {
-		await prisma.category.upsert({
-			where: { name: categoryData.name },
+	for (const collectionData of collections) {
+		await prisma.collection.upsert({
+			where: { name: collectionData.name },
 			update: {},
-			create: categoryData
+			create: collectionData
 		})
 	}
 
-	console.log('✅ Categories seeded successfully')
+	console.log('✅ Collections seeded successfully')
 
 	// Створюємо головного адміністратора
 	const adminEmail = 'admin@mediary.com'

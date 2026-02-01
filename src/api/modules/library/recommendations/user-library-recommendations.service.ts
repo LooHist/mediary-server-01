@@ -20,7 +20,7 @@ export class UserLibraryRecommendationsService {
 				media: {
 					select: {
 						mediaData: true,
-						categoryId: true
+						collectionId: true
 					}
 				}
 			}
@@ -28,7 +28,7 @@ export class UserLibraryRecommendationsService {
 
 		// Extract genres from user's library
 		const userGenres = new Set<string>()
-		const userCategories = new Set<string>()
+		const userCollections = new Set<string>()
 
 		userLibrary.forEach(item => {
 			const mediaData = item.media.mediaData as any
@@ -39,7 +39,7 @@ export class UserLibraryRecommendationsService {
 					}
 				})
 			}
-			userCategories.add(item.media.categoryId)
+			userCollections.add(item.media.collectionId)
 		})
 
 		// Find media that user doesn't have but matches their preferences
@@ -55,9 +55,9 @@ export class UserLibraryRecommendationsService {
 						}
 					},
 					{
-						// Matches user's categories
-						categoryId: {
-							in: Array.from(userCategories)
+						// Matches user's collections
+						collectionId: {
+							in: Array.from(userCollections)
 						}
 					},
 					{
@@ -72,7 +72,7 @@ export class UserLibraryRecommendationsService {
 				]
 			},
 			include: {
-				category: true,
+				collection: true,
 				_count: {
 					select: {
 						library: true,

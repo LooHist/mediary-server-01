@@ -75,7 +75,7 @@ model User {
   addedMedia       Media[]        @relation(name: "AddedMedia")     // Контент, доданий користувачем
   mediaRequests    MediaRequest[] @relation(name: "RequestedMedia") // Запити на додавання контенту
   moderatedRequests MediaRequest[] @relation(name: "ModeratedMedia") // Запити, які модерував користувач
-  userCategories   UserCategory[] // Персональні категорії користувача
+  userCollections   UserCollection[] // Персональні колекції користувача
 
   // Додаємо зв'язок зі сповіщеннями
   notifications    Notification[]
@@ -117,7 +117,7 @@ model Token {
   @@map("tokens")
 }
 
-model Category {
+model Collection {
   id        String    @id @default(uuid())
   name      String    @unique
   createdAt DateTime  @default(now()) @map("created_at")
@@ -126,9 +126,9 @@ model Category {
   // Зв'язки
   media     Media[]
   mediaRequests MediaRequest[]
-  userCategories UserCategory[]
+  userCollections UserCollection[]
 
-  @@map("categories")
+  @@map("collections")
 }
 
 model Media {
@@ -163,8 +163,8 @@ model Media {
   externalIds    Json?       // Масив ID з різних джерел
 
   // Зв'язки
-  category      Category     @relation(fields: [categoryId], references: [id])
-  categoryId    String       @map("category_id")
+  collection      Collection     @relation(fields: [collectionId], references: [id])
+  collectionId    String       @map("collection_id")
   library       UserLibrary[]
   reviews       Review[]
   favorites     UserFavorite[] // Лайки (favorites)
@@ -271,9 +271,9 @@ model MediaRequest {
   approvedMedia Media?       @relation(fields: [approvedMediaId], references: [id])
   approvedMediaId String?    @map("approved_media_id")
   
-  // Категорія медіа
-  category      Category     @relation(fields: [categoryId], references: [id])
-  categoryId    String       @map("category_id")
+  // Колекція медіа
+  collection      Collection     @relation(fields: [collectionId], references: [id])
+  collectionId    String       @map("collection_id")
 
   // Зв'язок зі сповіщеннями
   notifications Notification[]
@@ -285,8 +285,8 @@ model MediaRequest {
   @@map("media_requests")
 }
 
-// Модель для персональних категорій користувача
-model UserCategory {
+// Модель для персональних колекцій користувача
+model UserCollection {
   id        String    @id @default(uuid())
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime  @updatedAt @map("updated_at")
@@ -294,13 +294,13 @@ model UserCategory {
   // Зв'язки
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    String    @map("user_id")
-  category  Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  categoryId String   @map("category_id")
+  collection  Collection  @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  collectionId String   @map("collection_id")
 
-  @@unique([userId, categoryId]) // Унікальна комбінація користувача та категорії
+  @@unique([userId, collectionId]) // Унікальна комбінація користувача та колекції
   @@index([userId])
-  @@index([categoryId])
-  @@map("user_categories")
+  @@index([collectionId])
+  @@map("user_collections")
 }
 
 // Модель для лайків (favorites)

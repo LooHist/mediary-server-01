@@ -18,7 +18,7 @@ export class MediaRequestFilteringService {
 	): Prisma.MediaRequestWhereInput {
 		const {
 			status,
-			categoryId,
+			collectionId,
 			search,
 			requestedById,
 			moderatedById,
@@ -28,7 +28,7 @@ export class MediaRequestFilteringService {
 		const where: Prisma.MediaRequestWhereInput = {
 			...(status && { status }),
 			// Note: MediaRequest doesn't have 'source' field - it's only in Media model
-			...(categoryId && { categoryId }),
+			...(collectionId && { collectionId }),
 			...(requestedById && { requestedById }),
 			...(moderatedById && { moderatedById }),
 			...(search && {
@@ -88,7 +88,7 @@ export class MediaRequestFilteringService {
 					picture: true
 				}
 			},
-			category: true,
+			collection: true,
 			approvedMedia: {
 				select: {
 					id: true

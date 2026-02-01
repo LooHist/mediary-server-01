@@ -25,17 +25,17 @@ export class MediaRequestCrudService {
 	): Promise<MediaRequest> {
 		const {
 			mediaData,
-			categoryId,
+			collectionId,
 			source = MediaSource.CUSTOM
 		} = createRequestDto
 
-		// Check if category exists
-		const category = await this.prisma.category.findUnique({
-			where: { id: categoryId }
+		// Check if collection exists
+		const collection = await this.prisma.collection.findUnique({
+			where: { id: collectionId }
 		})
 
-		if (!category) {
-			throw new BadRequestException('Category not found')
+		if (!collection) {
+			throw new BadRequestException('Collection not found')
 		}
 
 		// For user requests, only CUSTOM source is allowed
@@ -55,7 +55,7 @@ export class MediaRequestCrudService {
 		const existingMedia = await this.validationService.checkExistingMedia(
 			searchableTitle,
 			finalSource,
-			categoryId
+			collectionId
 		)
 		if (existingMedia) {
 			throw new BadRequestException({
@@ -72,7 +72,7 @@ export class MediaRequestCrudService {
 		const existingRequest = await this.validationService.checkExistingRequest(
 			searchableTitle,
 			finalSource,
-			categoryId
+			collectionId
 		)
 		if (existingRequest) {
 			throw new BadRequestException({
@@ -91,7 +91,7 @@ export class MediaRequestCrudService {
 				mediaData: mediaData as Prisma.JsonObject,
 				searchableTitle,
 				externalIds: null, // For user requests, externalIds is always null
-				categoryId,
+				collectionId,
 				requestedById: userId,
 				status: ModerationType.PENDING
 			},
@@ -103,7 +103,7 @@ export class MediaRequestCrudService {
 						picture: true
 					}
 				},
-				category: true
+				collection: true
 			}
 		})
 
@@ -135,7 +135,7 @@ export class MediaRequestCrudService {
 						picture: true
 					}
 				},
-				category: true,
+				collection: true,
 				approvedMedia: true
 			}
 		})
@@ -204,7 +204,7 @@ export class MediaRequestCrudService {
 						picture: true
 					}
 				},
-				category: true
+				collection: true
 			}
 		})
 

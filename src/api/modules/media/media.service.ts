@@ -14,26 +14,26 @@ export class MediaService {
 	constructor(private readonly prisma: PrismaService) {}
 
 	async create(createMediaDto: CreateMediaDto): Promise<Media> {
-		const { mediaData, categoryId, addedById, source, externalId } =
+		const { mediaData, collectionId, addedById, source, externalId } =
 			createMediaDto
 
-		// Check if category exists
-		const category = await this.prisma.category.findUnique({
-			where: { id: categoryId }
+		// Check if collection exists
+		const collection = await this.prisma.collection.findUnique({
+			where: { id: collectionId }
 		})
 
-		if (!category) {
-			throw new BadRequestException('Category not found')
+		if (!collection) {
+			throw new BadRequestException('Collection not found')
 		}
 
 		// Normalize title for duplicate search
 		const searchableTitle = normalizeTitle(mediaData.title)
 
-		// Check for duplicates with more precise logic (title + year + category or source+externalId)
+		// Check for duplicates with more precise logic (title + year + collection or source+externalId)
 		const year = (mediaData as any)?.year as number | undefined
 		await this.checkForDuplicates({
 			searchableTitle,
-			categoryId,
+			collectionId,
 			year,
 			source,
 			externalId
@@ -49,11 +49,11 @@ export class MediaService {
 				mediaData: mediaData as Prisma.JsonObject,
 				searchableTitle,
 				externalIds: externalIds as Prisma.JsonObject,
-				categoryId,
+				collectionId,
 				addedById
 			},
 			include: {
-				category: true,
+				collection: true,
 				addedBy: {
 					select: {
 						id: true,
@@ -77,7 +77,7 @@ export class MediaService {
 	async findAll(findMediaDto: FindMediaDto) {
 		const {
 			search,
-			categoryId,
+			collectionId,
 			source,
 			year,
 			page = 1,
@@ -90,7 +90,7 @@ export class MediaService {
 
 		// Build filter conditions
 		const where: Prisma.MediaWhereInput = {
-			...(categoryId && { categoryId }),
+			...(collectionId && { collectionId }),
 			...(source && { source }),
 			...(search && {
 				OR: [
@@ -125,7 +125,7 @@ export class MediaService {
 				take: limit,
 				orderBy: { [sortBy]: sortOrder },
 				include: {
-					category: true,
+					collection: true,
 					addedBy: {
 						select: {
 							id: true,
@@ -161,7 +161,7 @@ export class MediaService {
 		const media = await this.prisma.media.findUnique({
 			where: { id },
 			include: {
-				category: true,
+				collection: true,
 				addedBy: {
 					select: {
 						id: true,
@@ -202,16 +202,16 @@ export class MediaService {
 		// Check if media exists
 		const existingMedia = await this.findOne(id)
 
-		const { mediaData, categoryId, ...rest } = updateMediaDto
+		const { mediaData, collectionId, ...rest } = updateMediaDto
 
-		// If we are updating the category, check if it exists
-		if (categoryId) {
-			const category = await this.prisma.category.findUnique({
-				where: { id: categoryId }
+		// If we are updating the collection, check if it exists
+		if (collectionId) {
+			const collection = await this.prisma.collection.findUnique({
+				where: { id: collectionId }
 			})
 
-			if (!category) {
-				throw new BadRequestException('Category not found')
+			if (!collection) {
+				throw new BadRequestException('Collection not found')
 			}
 		}
 
@@ -227,10 +227,10 @@ export class MediaService {
 				...rest,
 				...(mediaData && { mediaData: mediaData as Prisma.JsonObject }),
 				...(searchableTitle && { searchableTitle }),
-				...(categoryId && { categoryId })
+				...(collectionId && { collectionId })
 			},
 			include: {
-				category: true,
+				collection: true,
 				addedBy: {
 					select: {
 						id: true,
@@ -270,7 +270,7 @@ export class MediaService {
 				externalId
 			},
 			include: {
-				category: true,
+				collection: true,
 				addedBy: {
 					select: {
 						id: true,
@@ -300,7 +300,7 @@ export class MediaService {
 		return this.prisma.media.findMany({
 			where,
 			include: {
-				category: true,
+				collection: true,
 				addedBy: {
 					select: {
 						id: true,
@@ -344,12 +344,12 @@ export class MediaService {
 
 	private async checkForDuplicates(params: {
 		searchableTitle: string
-		categoryId: string
+		collectionId: string
 		year?: number
 		source?: any
 		externalId?: string
 	}): Promise<void> {
-		const { searchableTitle, categoryId, year, source, externalId } = params
+		const { searchableTitle, collectionId, year, source, externalId } = params
 
 		// If there is an external ID, check by source + externalId
 		if (externalId && source) {
@@ -364,10 +364,10 @@ export class MediaService {
 			}
 		}
 
-		// Check by exact title + category + year (if there is a year)
+		// Check by exact title + collection + year (if there is a year)
 		const where: Prisma.MediaWhereInput = {
 			searchableTitle: { equals: searchableTitle, mode: 'insensitive' },
-			categoryId,
+			collectionId,
 			...(year !== undefined
 				? { mediaData: { path: ['year'], equals: year } }
 				: {})
@@ -380,7 +380,7 @@ export class MediaService {
 
 		if (duplicates.length > 0) {
 			throw new BadRequestException(
-				'Media with this title already exists in this category for this year'
+				'Media with this title already exists in this collection for this year'
 			)
 		}
 	}

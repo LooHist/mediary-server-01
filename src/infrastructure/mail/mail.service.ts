@@ -37,11 +37,19 @@ export class MailService {
 	}
 
 	private async sendMail(email: string, subject: string, html: string) {
-		return this.resend.emails.send({
+		const result = await this.resend.emails.send({
 			from: this.from,
 			to: email,
 			subject,
 			html
 		})
+
+		if (result.error) {
+			throw new Error(
+				`Resend API error: ${result.error.message || JSON.stringify(result.error)}`
+			)
+		}
+
+		return result
 	}
 }

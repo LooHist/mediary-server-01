@@ -1,13 +1,13 @@
 import { PrismaService } from '@database/prisma'
 import { Injectable } from '@nestjs/common'
-import { Category } from '@prisma/client'
+import { Collection } from '@prisma/client'
 
 @Injectable()
-export class CategoryService {
+export class CollectionService {
 	constructor(private readonly prisma: PrismaService) {}
 
-	// Fixed list of categories
-	private readonly FIXED_CATEGORIES = [
+	// Fixed list of collections
+	private readonly FIXED_COLLECTIONS = [
 		{ name: 'Movies' },
 		{ name: 'Series' },
 		{ name: 'Books' },
@@ -18,25 +18,25 @@ export class CategoryService {
 		{ name: 'Manhwa' }
 	] as const
 
-	// Initialize fixed categories
-	async seedInitialCategories(): Promise<Category[]> {
-		const categories: Category[] = []
+	// Initialize fixed collections
+	async seedInitialCollections(): Promise<Collection[]> {
+		const collections: Collection[] = []
 
-		for (const categoryData of this.FIXED_CATEGORIES) {
-			const category = await this.prisma.category.upsert({
-				where: { name: categoryData.name },
+		for (const collectionData of this.FIXED_COLLECTIONS) {
+			const collection = await this.prisma.collection.upsert({
+				where: { name: collectionData.name },
 				update: {},
-				create: categoryData
+				create: collectionData
 			})
-			categories.push(category)
+			collections.push(collection)
 		}
 
-		return categories
+		return collections
 	}
 
-	// Get all categories
+	// Get all collections
 	async findAll() {
-		return this.prisma.category.findMany({
+		return this.prisma.collection.findMany({
 			orderBy: { name: 'asc' },
 			include: {
 				_count: {
@@ -48,9 +48,9 @@ export class CategoryService {
 		})
 	}
 
-	// Get category by ID
-	async findOne(id: string): Promise<Category> {
-		const category = await this.prisma.category.findUnique({
+	// Get collection by ID
+	async findOne(id: string): Promise<Collection> {
+		const collection = await this.prisma.collection.findUnique({
 			where: { id },
 			include: {
 				_count: {
@@ -61,16 +61,16 @@ export class CategoryService {
 			}
 		})
 
-		if (!category) {
-			throw new Error('Category not found')
+		if (!collection) {
+			throw new Error('Collection not found')
 		}
 
-		return category
+		return collection
 	}
 
-	// Get category by name
-	async findByName(name: string): Promise<Category | null> {
-		return this.prisma.category.findUnique({
+	// Get collection by name
+	async findByName(name: string): Promise<Collection | null> {
+		return this.prisma.collection.findUnique({
 			where: { name },
 			include: {
 				_count: {
@@ -82,20 +82,20 @@ export class CategoryService {
 		})
 	}
 
-	// Get category media with pagination
-	async getCategoryMedia(
-		categoryId: string,
+	// Get collection media with pagination
+	async getCollectionMedia(
+		collectionId: string,
 		page: number = 1,
 		limit: number = 20
 	) {
-		// Check if category exists
-		await this.findOne(categoryId)
+		// Check if collection exists
+		await this.findOne(collectionId)
 
 		const skip = (page - 1) * limit
 
 		const [media, total] = await Promise.all([
 			this.prisma.media.findMany({
-				where: { categoryId },
+				where: { collectionId },
 				skip,
 				take: limit,
 				include: {
@@ -115,7 +115,7 @@ export class CategoryService {
 				},
 				orderBy: { createdAt: 'desc' }
 			}),
-			this.prisma.media.count({ where: { categoryId } })
+			this.prisma.media.count({ where: { collectionId } })
 		])
 
 		return {
@@ -131,3 +131,7 @@ export class CategoryService {
 		}
 	}
 }
+
+
+
+

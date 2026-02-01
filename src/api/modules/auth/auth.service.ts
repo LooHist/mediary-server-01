@@ -1,4 +1,4 @@
-import { UserCategoriesService } from '@api/modules/user-categories/user-categories.service'
+import { UserCollectionsService } from '@api/modules/user-collections/user-collections.service'
 import { UserService } from '@api/modules/users/user.service'
 import { PrismaService } from '@database/prisma'
 import {
@@ -28,7 +28,7 @@ export class AuthService {
 		private readonly providerService: ProviderService,
 		private readonly emailConfirmationService: EmailConfirmationService,
 		private readonly twoFactorAuthService: TwoFactorAuthService,
-		private readonly userCategoriesService: UserCategoriesService
+		private readonly userCollectionsService: UserCollectionsService
 	) {}
 
 	public async register(dto: RegisterDto) {
@@ -49,8 +49,8 @@ export class AuthService {
 			false
 		)
 
-		// Initialize default categories for new user
-		await this.userCategoriesService.initializeDefaultCategories(newUser.id)
+		// Initialize default collections for new user
+		await this.userCollectionsService.initializeDefaultCollections(newUser.id)
 
 		await this.emailConfirmationService.sendVerificationToken(newUser.email)
 
@@ -138,8 +138,8 @@ export class AuthService {
 			true
 		)
 
-		// Initialize default categories for new user
-		await this.userCategoriesService.initializeDefaultCategories(user.id)
+		// Initialize default collections for new user
+		await this.userCollectionsService.initializeDefaultCollections(user.id)
 
 		if (!account) {
 			await this.prismaService.account.create({

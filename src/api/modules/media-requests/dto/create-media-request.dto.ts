@@ -82,5 +82,5 @@ export class CreateMediaRequestDto {
 
 	@IsString()
 	@IsNotEmpty()
-	categoryId: string // Category (Movies/Series/etc.)
+	collectionId: string // Collection (Movies/Series/etc.)
 }
